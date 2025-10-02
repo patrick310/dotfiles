@@ -49,3 +49,7 @@ rsync
 # Network utilities
 net-tools
 dnsutils
+
+# Sync and backup tools
+syncthing
+rclone
