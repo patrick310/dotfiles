@@ -1,0 +1,17 @@
+# This gets sourced by ~/.bashrc after distro defaults
+
+# Source modular configs
+BASH_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/bash"
+
+for file in "$BASH_CONFIG_DIR"/{exports,aliases,functions}; do
+    [ -r "$file" ] && source "$file"
+done
+
+# Local machine-specific overrides (not in git)
+[ -f ~/.bashrc.local ] && source ~/.bashrc.local
+
+# Interactive shell check
+if [[ $- == *i* ]]; then
+    # Prompt, completion, etc.
+    PS1='[\u@\h \W]\$ '
+fi
