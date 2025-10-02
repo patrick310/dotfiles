@@ -65,6 +65,60 @@ setup_syncthing() {
     echo ""
 }
 
+# Save gateway device ID to private config
+save_gateway_device_id() {
+    echo "    Saving gateway device ID to config..."
+
+    local device_id
+    if [ -f ~/.local/state/syncthing/cert.pem ]; then
+        device_id=$(syncthing --device-id 2>/dev/null)
+    elif [ -f ~/.config/syncthing/cert.pem ]; then
+        device_id=$(syncthing --device-id 2>/dev/null)
+    fi
+
+    if [ -z "$device_id" ]; then
+        echo "      ⚠️  Could not get device ID (syncthing not started yet?)"
+        return 1
+    fi
+
+    local hostname=$(hostname)
+    local config_file="$HOME/private-dots/config/sync-devices.yaml"
+
+    # Create config directory if needed
+    mkdir -p "$(dirname "$config_file")"
+
+    # Update or create config file
+    if ! command -v yq &> /dev/null; then
+        echo "      ⚠️  yq not installed, creating config manually"
+        cat > "$config_file" << EOF
+# Syncthing device registry
+gateway:
+  device_id: "$device_id"
+  name: "Gateway Server"
+  hostname: "$hostname"
+devices: []
+EOF
+    else
+        # Use yq if available
+        if [ ! -f "$config_file" ]; then
+            # Create template first
+            cat > "$config_file" << EOF
+gateway:
+  device_id: ""
+  name: "Gateway Server"
+  hostname: ""
+devices: []
+EOF
+        fi
+        yq -i ".gateway.device_id = \"$device_id\"" "$config_file"
+        yq -i ".gateway.hostname = \"$hostname\"" "$config_file"
+    fi
+
+    echo "      ✓ Device ID saved to private-dots/config/sync-devices.yaml"
+    echo "      💡 Commit this to your private-dots repo:"
+    echo "         cd ~/private-dots && git add config/ && git commit -m 'Add gateway device ID'"
+}
+
 # Setup Rclone
 setup_rclone() {
     echo "    Setting up Rclone..."
@@ -217,6 +271,7 @@ main() {
     fi
 
     setup_syncthing
+    save_gateway_device_id
     setup_rclone
     create_sync_script
     setup_cron

@@ -53,3 +53,6 @@ dnsutils
 # Sync and backup tools
 syncthing
 rclone
+
+# Configuration tools
+yq
