@@ -66,3 +66,22 @@ fi
 echo "✅ Bootstrap complete!"
 echo "📝 Review any adopted files with: cd $DOTFILES_DIR && git status"
 echo "🔄 Reload shell with: source ~/.bashrc"
+
+# Run setup scripts
+echo "Setting up folder structure..."
+./scripts/setup-folders.sh
+
+# Stow configurations
+stow shell
+stow kde  # Only configs, not scripts
+
+
+# Desktop environment specific setup
+if [ "$XDG_CURRENT_DESKTOP" = "KDE" ]; then
+    ./scripts/setup-kde.sh
+fi
+
+# Secrets setup (if private repo exists)
+if [ -d "$HOME/private-dots" ]; then
+    ./scripts/setup-secrets.sh
+fi
