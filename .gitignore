@@ -1,0 +1,15 @@
+# Even in private repo, never commit these
+*.key
+*.pem
+id_rsa*
+id_ed25519
+id_ecdsa*
+!*.pub  # Could allow public keys, but you don't sync them anyway
+
+# Wireguard private keys (if you keep configs)
+privatekey
+presharedkey
+
+# Temp files
+*.swp
+*.tmp
