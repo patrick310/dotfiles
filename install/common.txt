@@ -27,9 +27,9 @@ python3-pip
 nodejs
 npm
 
-# Container and virtualization
-docker
-docker-compose
+# Container and virtualization (removed for now)
+# docker
+# docker-compose
 
 # Security and secrets management
 gnupg
