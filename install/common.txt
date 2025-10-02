@@ -34,6 +34,9 @@ docker-compose
 # Security and secrets management
 gnupg
 pass
+age
+jq
+# sops (install separately - see https://github.com/getsops/sops)
 # bitwarden-cli (install separately via snap/flatpak)
 
 # System utilities

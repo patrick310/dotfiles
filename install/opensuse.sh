@@ -33,4 +33,26 @@ fi
 echo "Installing global npm packages..."
 sudo npm install -g pnpm yarn
 
-echo " openSUSE package installation complete!"
+# Install SOPS from OBS repository
+if ! command -v sops &> /dev/null; then
+    echo "Installing SOPS from OBS..."
+
+    # Detect openSUSE version
+    if grep -q "Tumbleweed" /etc/os-release; then
+        SOPS_REPO="https://download.opensuse.org/repositories/security:/Privacy/openSUSE_Tumbleweed/security:Privacy.repo"
+    elif grep -q "15.6" /etc/os-release; then
+        SOPS_REPO="https://download.opensuse.org/repositories/security:/Privacy/15.6/security:Privacy.repo"
+    elif grep -q "15.5" /etc/os-release; then
+        SOPS_REPO="https://download.opensuse.org/repositories/security:/Privacy/15.5/security:Privacy.repo"
+    else
+        # Default to Tumbleweed
+        SOPS_REPO="https://download.opensuse.org/repositories/security:/Privacy/openSUSE_Tumbleweed/security:Privacy.repo"
+    fi
+
+    sudo zypper addrepo "$SOPS_REPO"
+    sudo zypper --gpg-auto-import-keys refresh
+    sudo zypper install -y sops
+    echo "✅ SOPS installed"
+fi
+
+echo "✅ openSUSE package installation complete!"

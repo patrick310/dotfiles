@@ -33,4 +33,12 @@ fi
 echo "Installing global npm packages..."
 sudo npm install -g pnpm yarn
 
-echo " Fedora package installation complete!"
+# Install SOPS from COPR repository
+if ! command -v sops &> /dev/null; then
+    echo "Installing SOPS from COPR..."
+    sudo dnf copr enable -y yannik26/Mozilla-SOPS
+    sudo dnf install -y mozilla-sops
+    echo "✅ SOPS installed"
+fi
+
+echo "✅ Fedora package installation complete!"
