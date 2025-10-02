@@ -13,3 +13,6 @@ presharedkey
 # Temp files
 *.swp
 *.tmp
+
+# Bootstrap state
+.stow_state

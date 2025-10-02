@@ -1,0 +1,33 @@
+# KDE Global Settings
+# This file will be stowed to ~/.config/kdeglobals
+
+[KDE]
+SingleClick=false
+ShowDeleteCommand=true
+
+[General]
+BrowserApplication=firefox.desktop
+TerminalApplication=konsole
+TerminalService=org.kde.konsole.desktop
+
+[Icons]
+Theme=breeze
+
+[KFileDialog Settings]
+Allow Expansion=false
+Automatically select filename extension=true
+Breadcrumb Navigation=true
+Decoration position=0
+LocationCombo Completionmode=5
+PathCombo Completionmode=5
+Show Bookmarks=false
+Show Full Path=false
+Show Inline Previews=true
+Show Preview=false
+Show Speedbar=true
+Show hidden files=false
+Sort by=Name
+Sort directories first=true
+Sort reversed=false
+Speedbar Width=138
+View Style=DetailTree

@@ -1,0 +1,48 @@
+# Common packages for all distributions
+# One package per line, comments with #
+
+# Essential development tools
+git
+stow
+curl
+wget
+make
+gcc
+g++
+
+# Editor and terminal
+neovim
+tmux
+fzf
+ripgrep
+fd-find
+
+# Shell enhancements
+bash-completion
+tree
+
+# Development languages and tools
+python3
+python3-pip
+nodejs
+npm
+
+# Container and virtualization
+docker
+docker-compose
+
+# Security and secrets management
+gnupg
+pass
+# bitwarden-cli (install separately via snap/flatpak)
+
+# System utilities
+htop
+ncdu
+unzip
+zip
+rsync
+
+# Network utilities
+net-tools
+dnsutils

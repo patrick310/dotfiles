@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xbel>
+<xbel xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks" xmlns:kdepriv="http://www.kde.org/kdepriv" xmlns:mime="http://www.freedesktop.org/standards/shared-mime-info">
+ <info>
+  <metadata owner="http://freedesktop.org">
+   <bookmark:icon name="folder-bookmark"/>
+  </metadata>
+ </info>
+ <bookmark href="file://$HOME">
+  <title>Home</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="user-home"/>
+   </metadata>
+  </info>
+ </bookmark>
+ <bookmark href="file://$HOME/code">
+  <title>Code</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="folder-development"/>
+   </metadata>
+  </info>
+ </bookmark>
+ <bookmark href="file://$HOME/code/personal">
+  <title>Personal</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="folder-bookmark"/>
+   </metadata>
+  </info>
+ </bookmark>
+ <bookmark href="file://$HOME/code/work">
+  <title>Work</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="folder-briefcase"/>
+   </metadata>
+  </info>
+ </bookmark>
+ <bookmark href="file://$HOME/code/spikes">
+  <title>Spikes</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="folder-temp"/>
+   </metadata>
+  </info>
+ </bookmark>
+ <bookmark href="file://$HOME/Documents">
+  <title>Documents</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="folder-documents"/>
+   </metadata>
+  </info>
+ </bookmark>
+ <bookmark href="file://$HOME/Downloads">
+  <title>Downloads</title>
+  <info>
+   <metadata owner="http://freedesktop.org">
+    <bookmark:icon name="folder-download"/>
+   </metadata>
+  </info>
+ </bookmark>
+</xbel>

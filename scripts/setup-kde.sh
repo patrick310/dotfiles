@@ -1,89 +1,84 @@
 #!/usr/bin/env bash
-# ~/dotfiles/scripts/setup-kde.sh
+# ~/dotfiles/scripts/setup-kde.sh - KDE Plasma configuration
 
 # Only run if KDE is detected
 if [ "$XDG_CURRENT_DESKTOP" != "KDE" ]; then
-    echo "Not running KDE, skipping KDE setup"
+    echo "    Not running KDE, skipping KDE setup"
     exit 0
 fi
 
-# Create KDE bookmarks for Dolphin sidebar
-setup_dolphin_bookmarks() {
-    echo "Setting up Dolphin bookmarks..."
-    
-    # Dolphin places file
-    cat > ~/.local/share/user-places.xbel << 'EOF'
-<?xml version="1.0" encoding="UTF-8"?>
-<xbel xmlns:bookmark="http://www.freedesktop.org/standards/desktop-bookmarks" xmlns:kdepriv="http://www.kde.org/kdepriv">
- <bookmark href="file:///home/$USER/code">
-  <title>Code</title>
-  <info>
-   <metadata owner="http://freedesktop.org">
-    <bookmark:icon name="folder-development"/>
-   </metadata>
-  </info>
- </bookmark>
- <bookmark href="file:///home/$USER/code/spikes">
-  <title>Spikes</title>
- </bookmark>
-</xbel>
-EOF
-}
+echo "    Configuring KDE Plasma..."
 
-# Set KDE defaults via kwriteconfig5
+# Set KDE defaults via kwriteconfig5 (if available)
 configure_kde_defaults() {
-    echo "Configuring KDE defaults..."
-    
+    if ! command -v kwriteconfig5 &> /dev/null && ! command -v kwriteconfig6 &> /dev/null; then
+        echo "      kwriteconfig not found, skipping runtime configuration"
+        return
+    fi
+
+    local kwriteconfig=$(command -v kwriteconfig6 || command -v kwriteconfig5)
+
+    echo "      Setting KDE preferences..."
+
     # Global KDE settings
-    kwriteconfig5 --file kdeglobals --group KDE \
-        --key SingleClick false  # Double-click to open
-    
+    $kwriteconfig --file kdeglobals --group KDE --key SingleClick false
+
     # Dolphin settings
-    kwriteconfig5 --file dolphinrc --group General \
-        --key ShowHiddenFiles false \
-        --key OpenExternallyCalledFolderInNewTab false
-    
-    # Konsole settings
-    kwriteconfig5 --file konsolerc --group "Desktop Entry" \
-        --key DefaultProfile "Personal.profile"
-    
+    $kwriteconfig --file dolphinrc --group General --key ShowFullPath true
+    $kwriteconfig --file dolphinrc --group General --key ShowSpaceInfo false
+
     # KWin window management
-    kwriteconfig5 --file kwinrc --group Windows \
-        --key FocusPolicy "FocusFollowsMouse" \
-        --key AutoRaise false
+    $kwriteconfig --file kwinrc --group Windows --key FocusPolicy "FocusFollowsMouse"
+    $kwriteconfig --file kwinrc --group Windows --key AutoRaise false
 }
 
 # Set keyboard shortcuts for window management
 setup_kde_shortcuts() {
-    echo "Setting up KDE keyboard shortcuts..."
-    
-    # Window tiling shortcuts (like your Sway setup)
-    kwriteconfig5 --file kglobalshortcutsrc --group kwin \
-        --key "Window Quick Tile Left" "Meta+Left,Meta+Left,Quick Tile Window to the Left" \
-        --key "Window Quick Tile Right" "Meta+Right,Meta+Right,Quick Tile Window to the Right" \
-        --key "Window Maximize" "Meta+Up,Meta+Up,Maximize Window" \
-        --key "Window Close" "Meta+Shift+Q,,Close Window" \
-        --key "Switch Window Left" "Meta+H,,Switch to Window to the Left" \
-        --key "Switch Window Right" "Meta+L,,Switch to Window to the Right"
+    if ! command -v kwriteconfig5 &> /dev/null && ! command -v kwriteconfig6 &> /dev/null; then
+        return
+    fi
+
+    local kwriteconfig=$(command -v kwriteconfig6 || command -v kwriteconfig5)
+
+    echo "      Setting up keyboard shortcuts..."
+
+    # Window tiling shortcuts
+    $kwriteconfig --file kglobalshortcutsrc --group kwin \
+        --key "Window Quick Tile Left" "Meta+Left,Meta+Left,Quick Tile Window to the Left"
+    $kwriteconfig --file kglobalshortcutsrc --group kwin \
+        --key "Window Quick Tile Right" "Meta+Right,Meta+Right,Quick Tile Window to the Right"
+    $kwriteconfig --file kglobalshortcutsrc --group kwin \
+        --key "Window Maximize" "Meta+Up,Meta+Up,Maximize Window"
 }
 
-# Install KWin scripts for tiling
+# Install KWin scripts for tiling (optional)
 install_kwin_scripts() {
-    echo "Installing KWin tiling scripts..."
-    
-    # Install Polonium or Bismuth for tiling
-    if command -v kpackagetool5 &> /dev/null; then
-        # Download and install Polonium (or Bismuth)
-        wget -O /tmp/polonium.kwinscript \
-            "https://github.com/zeroxoneafour/polonium/releases/latest/download/polonium.kwinscript"
-        kpackagetool5 --type=KWin/Script --install /tmp/polonium.kwinscript
+    if [ -z "${INSTALL_KWIN_SCRIPTS:-}" ]; then
+        echo "      Skipping KWin tiling scripts (set INSTALL_KWIN_SCRIPTS=1 to install)"
+        return
+    fi
+
+    if ! command -v kpackagetool5 &> /dev/null && ! command -v kpackagetool6 &> /dev/null; then
+        echo "      kpackagetool not found, cannot install scripts"
+        return
+    fi
+
+    local kpackagetool=$(command -v kpackagetool6 || command -v kpackagetool5)
+
+    echo "      Installing KWin tiling script (Polonium)..."
+    local script_url="https://github.com/zeroxoneafour/polonium/releases/latest/download/polonium.kwinscript"
+
+    if command -v wget &> /dev/null; then
+        wget -q -O /tmp/polonium.kwinscript "$script_url"
+        $kpackagetool --type=KWin/Script --install /tmp/polonium.kwinscript 2>/dev/null || \
+            $kpackagetool --type=KWin/Script --upgrade /tmp/polonium.kwinscript 2>/dev/null
+        rm -f /tmp/polonium.kwinscript
     fi
 }
 
 # Main execution
-setup_dolphin_bookmarks
 configure_kde_defaults
 setup_kde_shortcuts
 install_kwin_scripts
 
-echo "✅ KDE setup complete! Log out and back in for all changes."
+echo "      ✓ KDE configuration applied (restart Plasma for all changes)"

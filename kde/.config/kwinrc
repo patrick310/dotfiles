@@ -1,0 +1,28 @@
+# KWin Window Manager Settings
+# This file will be stowed to ~/.config/kwinrc
+
+[Windows]
+FocusPolicy=FocusFollowsMouse
+AutoRaise=false
+AutoRaiseInterval=750
+DelayFocusInterval=300
+SeparateScreenFocus=false
+ActiveMouseScreen=true
+RollOverDesktops=true
+FocusStealingPreventionLevel=1
+
+[Compositing]
+Enabled=true
+GLCore=true
+Backend=OpenGL
+OpenGLIsUnsafe=false
+
+[Desktops]
+Number=4
+Rows=2
+
+[Effect-PresentWindows]
+BorderActivateAll=9
+
+[ModifierOnlyShortcuts]
+Meta=org.kde.plasmashell,/PlasmaShell,org.kde.PlasmaShell,activateLauncherMenu
