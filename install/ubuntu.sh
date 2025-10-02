@@ -8,6 +8,22 @@ COMMON_PACKAGES="$SCRIPT_DIR/common.txt"
 
 echo "Installing packages for Ubuntu/Debian..."
 
+# Ensure software-properties-common is installed (needed for add-apt-repository)
+if ! dpkg -l | grep -q software-properties-common; then
+    echo "Installing software-properties-common..."
+    sudo apt update
+    sudo apt install -y software-properties-common
+fi
+
+# Add Neovim unstable PPA for latest version
+if ! grep -q "neovim-ppa/unstable" /etc/apt/sources.list.d/*.list 2>/dev/null; then
+    echo "Adding Neovim unstable PPA..."
+    sudo add-apt-repository ppa:neovim-ppa/unstable -y
+fi
+
+# Update package list
+sudo apt update
+
 # Read package list, filter comments and empty lines
 packages=$(grep -v '^#' "$COMMON_PACKAGES" | grep -v '^$' | tr '\n' ' ')
 
@@ -16,9 +32,6 @@ ubuntu_packages=$(echo "$packages" | \
     sed 's/fd-find/fd-find/g' | \
     sed 's/g++/g++/g' | \
     sed 's/dnsutils/dnsutils/g')
-
-# Update package list
-sudo apt update
 
 # Install packages
 sudo apt install -y $ubuntu_packages

@@ -3,7 +3,7 @@
 # Source modular configs
 BASH_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/bash"
 
-for file in "$BASH_CONFIG_DIR"/{exports,aliases,functions}; do
+for file in "$BASH_CONFIG_DIR"/{exports,aliases,functions,secrets}; do
     [ -r "$file" ] && source "$file"
 done
 
