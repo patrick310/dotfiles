@@ -1,4 +1,4 @@
-# Helpful aliases
+# Kubectl aliases
 alias k='kubectl'
 alias kns='kubectl config set-context --current --namespace'
 alias kgp='kubectl get pods'
@@ -9,7 +9,3 @@ alias fgk='flux get kustomizations'
 alias fgh='flux get helmreleases'
 alias fgs='flux get sources'
 
-# some more ls aliases
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'

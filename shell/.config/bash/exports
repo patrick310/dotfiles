@@ -1,8 +1,12 @@
 # Development paths (lowercase)
 export CODE_DIR="$HOME/code"
-export SPIKES_DIR="$CODE_DIR/spikes"  # Replaces WIP
+export SPIKES_DIR="$CODE_DIR/spikes"
 export SCRIPTS_DIR="$HOME/bin"
 
 # XDG paths (capitalized)
 export DOCUMENTS_DIR="$HOME/Documents"
 export DOWNLOADS_DIR="$HOME/Downloads"
+
+# Editors
+export EDITOR=nvim
+export VISUAL=nvim

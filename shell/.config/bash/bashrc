@@ -1,17 +1,80 @@
-# This gets sourced by ~/.bashrc after distro defaults
+# ~/.bashrc
 
-# Source modular configs
-BASH_CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/bash"
+# If not running interactively, don't do anything
+case $- in
+    *i*) ;;
+      *) return;;
+esac
 
-for file in "$BASH_CONFIG_DIR"/{exports,aliases,functions,secrets}; do
-    [ -r "$file" ] && source "$file"
-done
+# ============ HISTORY IMPROVEMENTS ============
+HISTCONTROL=ignoreboth:erasedups  # Add erasedups
+shopt -s histappend
+HISTSIZE=10000
+HISTFILESIZE=20000
+HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help"  
+PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
-# Local machine-specific overrides (not in git)
-[ -f ~/.bashrc.local ] && source ~/.bashrc.local
+# ============ BETTER NAVIGATION ============
+shopt -s checkwinsize
+shopt -s globstar
+shopt -s cdspell
+shopt -s dirspell
+shopt -s autocd 
+shopt -s dotglob 
 
-# Interactive shell check
-if [[ $- == *i* ]]; then
-    # Prompt, completion, etc.
-    PS1='[\u@\h \W]\$ '
+[ -x /usr/bin/lesspipe ] && eval "$(SHELL=/bin/sh lesspipe)"
+
+
+if [ -z "${debian_chroot:-}" ] && [ -r /etc/debian_chroot ]; then
+    debian_chroot=$(cat /etc/debian_chroot)
 fi
+PS1='${debian_chroot:+($debian_chroot)}\[\033[01;32m\]\u@\h\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ '
+
+# Set terminal title
+case "$TERM" in
+xterm*|rxvt*)
+    PS1="\[\e]0;${debian_chroot:+($debian_chroot)}\u@\h: \w\a\]$PS1"
+    ;;
+esac
+
+# ============ COLOR SUPPORT ============
+if [ -x /usr/bin/dircolors ]; then
+    test -r ~/.dircolors && eval "$(dircolors -b ~/.dircolors)" || eval "$(dircolors -b)"
+    alias ls='ls --color=auto --group-directories-first'
+    alias grep='grep --color=auto'
+    alias fgrep='fgrep --color=auto'
+    alias egrep='egrep --color=auto'
+fi
+
+# ============ BETTER ALIASES ============
+alias ll='ls -alFh'
+alias la='ls -A'
+alias l='ls -CF'
+alias lt='ls -laht'     
+alias ..='cd ..'       
+alias ...='cd ../..'   
+alias mkdir='mkdir -pv'  
+
+# ============ SAFETY ============
+set -o noclobber       
+alias rm='rm -i'        
+alias cp='cp -i'       
+alias mv='mv -i'    
+
+# ============ SOURCE CONFIGS ============
+# Source your custom configs from dotfiles
+[ -f ~/.config/bash/aliases ] && source ~/.config/bash/aliases
+[ -f ~/.config/bash/functions ] && source ~/.config/bash/functions
+[ -f ~/.config/bash/exports ] && source ~/.config/bash/exports
+
+# Keep Ubuntu's bash completion (it's fine!)
+if ! shopt -oq posix; then
+  if [ -f /usr/share/bash-completion/bash_completion ]; then
+    . /usr/share/bash-completion/bash_completion
+  elif [ -f /etc/bash_completion ]; then
+    . /etc/bash_completion
+  fi
+fi
+
+# Local machine-specific settings
+[ -f ~/.bashrc.local ] && source ~/.bashrc.local
