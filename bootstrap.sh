@@ -8,6 +8,7 @@ STOW_STATE_FILE="$DOTFILES_DIR/.stow_state"
 BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
 STOWED_PACKAGES=()
 
+
 # Parse command-line arguments
 FORCE_MODE=false
 DRY_RUN=false
@@ -113,7 +114,11 @@ detect_conflicts() {
 
     # Run stow in simulation mode to detect conflicts
     local stow_output
-    if stow_output=$(stow --no --verbose=1 "$package" 2>&1); then
+    stow_output=$(stow --no --verbose=1 "$package" 2>&1)
+    local stow_exit=$?
+    stow_output=$(echo "$stow_output" | grep -v "BUG in find_stowed_path" || true)
+
+    if [ $stow_exit -eq 0 ]; then
         return 0  # No conflicts
     else
         # Parse conflict messages
@@ -219,7 +224,7 @@ rollback() {
     cd "$DOTFILES_DIR"
     for package in "${STOWED_PACKAGES[@]}"; do
         echo "    Unstowing: $package"
-        stow --delete "$package" 2>/dev/null || true
+        stow --delete "$package" 2>&1 | grep -v "BUG in find_stowed_path" || true
         # Remove from state file
         sed -i "/^$package$/d" "$STOW_STATE_FILE" 2>/dev/null || true
     done
@@ -253,10 +258,16 @@ stow_package() {
         fi
 
         echo "    $package: already stowed, restowing..."
-        stow --restow "$package" 2>&1 || {
+        local stow_output
+        stow_output=$(stow --restow "$package" 2>&1)
+        local stow_exit=$?
+        stow_output=$(echo "$stow_output" | grep -v "BUG in find_stowed_path" || true)
+        [ -n "$stow_output" ] && echo "$stow_output"
+
+        if [ $stow_exit -ne 0 ]; then
             echo "    ❌ Failed to restow $package"
             return 1
-        }
+        fi
         return 0
     fi
 
@@ -281,7 +292,13 @@ stow_package() {
     fi
 
     echo "    $package: stowing..."
-    if stow "$package" 2>&1; then
+    local stow_output
+    stow_output=$(stow "$package" 2>&1)
+    local stow_exit=$?
+    stow_output=$(echo "$stow_output" | grep -v "BUG in find_stowed_path" || true)
+    [ -n "$stow_output" ] && echo "$stow_output"
+
+    if [ $stow_exit -eq 0 ]; then
         mark_stowed "$package"
         echo "       ✓ Success"
     else
