@@ -31,7 +31,17 @@ fi
 
 # Install Node.js tools globally
 echo "Installing global npm packages..."
-sudo npm install -g pnpm yarn
+packages_to_install=()
+
+command -v pnpm &> /dev/null || packages_to_install+=(pnpm)
+command -v yarn &> /dev/null || packages_to_install+=(yarn)
+
+if [ ${#packages_to_install[@]} -gt 0 ]; then
+    echo "  Installing: ${packages_to_install[*]}"
+    sudo npm install -g "${packages_to_install[@]}"
+else
+    echo "  All global npm packages already installed"
+fi
 
 # Install SOPS from OBS repository
 if ! command -v sops &> /dev/null; then
