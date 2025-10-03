@@ -17,8 +17,9 @@ fedora_packages=$(echo "$packages" | \
     sed 's/python3-pip/python3-pip/g' | \
     sed 's/dnsutils/bind-utils/g')
 
-# Install packages
-sudo dnf install -y $fedora_packages
+# Install packages (continue on individual failures)
+echo "Installing packages (some may fail if not available)..."
+sudo dnf install -y $fedora_packages || echo "Some packages may have failed to install"
 
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then

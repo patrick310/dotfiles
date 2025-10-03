@@ -33,8 +33,9 @@ ubuntu_packages=$(echo "$packages" | \
     sed 's/g++/g++/g' | \
     sed 's/dnsutils/dnsutils/g')
 
-# Install packages
-sudo apt install -y $ubuntu_packages
+# Install packages (continue on individual failures)
+echo "Installing packages (some may fail if not available)..."
+sudo apt install -y $ubuntu_packages || echo "Some packages may have failed to install"
 
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then

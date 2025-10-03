@@ -15,10 +15,13 @@ packages=$(grep -v '^#' "$COMMON_PACKAGES" | grep -v '^$' | tr '\n' ' ')
 opensuse_packages=$(echo "$packages" | \
     sed 's/fd-find/fd/g' | \
     sed 's/g++/gcc-c++/g' | \
-    sed 's/dnsutils/bind-utils/g')
+    sed 's/dnsutils/bind-utils/g' | \
+    sed 's/\<nodejs\>/nodejs-default/g' | \
+    sed 's/\<npm\>//g')  # npm comes with nodejs-default
 
-# Install packages
-sudo zypper install -y $opensuse_packages
+# Install packages (zypper will skip packages not found)
+echo "Installing packages (missing packages will be skipped)..."
+sudo zypper install -y --no-recommends $opensuse_packages 2>&1 || echo "Note: Some packages may not be available"
 
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then
