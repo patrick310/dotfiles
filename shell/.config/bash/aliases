@@ -37,10 +37,6 @@ else
     alias lt='ls -laht'
 fi
 
-alias ..='cd ..'       
-alias ...='cd ../..'   
-alias mkdir='mkdir -pv'  
-
 # Grep with color
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
@@ -75,5 +71,16 @@ alias mv='mv -i'
 
 
 # Modern replacements (if installed)
-command -v bat &>/dev/null && alias cat='bat'
-command -v rg &>/dev/null && alias grep='rg'
+if command -v bat &>/dev/null; then
+    cat() {
+        if [ -t 1 ]; then
+            bat --paging=never --style=plain --decorations=never "$@"
+        else
+            command cat "$@"
+        fi
+    }
+fi
+
+if command -v rg &>/dev/null; then
+    alias rgg='rg --hidden --glob "!.git"'
+fi
