@@ -17,6 +17,8 @@ fzf
 ripgrep
 fd-find
 starship
+eza
+bat
 
 # Shell enhancements
 bash-completion
