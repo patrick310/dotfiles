@@ -30,7 +30,7 @@ check profile="desktop":
         echo "shellcheck not installed. Skipping lint step." >&2; \
     fi
     @echo "Simulating stow for all packages..."
-    @pkgs=$(find . -maxdepth 2 -type f -name '.stow' -printf '%h\\n' | xargs -r -n1 basename | sort -u) || pkgs=""; \
+    @pkgs=$(find . -maxdepth 2 -type f -name '.stow' -printf '%h\n' | xargs -r -n1 basename | sort -u) || pkgs=""; \
     if [ -n "${pkgs:-}" ]; then \
         for pkg in ${pkgs:-}; do \
             echo "  -> $pkg"; \
