@@ -23,6 +23,31 @@ opensuse_packages=$(echo "$packages" | \
 echo "Installing packages (missing packages will be skipped)..."
 sudo zypper install -y --no-recommends $opensuse_packages 2>&1 || echo "Note: Some packages may not be available"
 
+# Install Snap (if not already installed)
+if ! command -v snap &> /dev/null; then
+    echo "Installing Snap support..."
+
+    # Add repo if not already present
+    if ! zypper lr | grep -q "snappy"; then
+        sudo zypper ar -f https://download.opensuse.org/repositories/system:/snappy/openSUSE_Tumbleweed/ snappy
+        sudo zypper --gpg-auto-import-keys refresh
+    fi
+
+    # Install snapd (official method with dup from snappy repo)
+    sudo zypper dup --from snappy
+    sudo zypper install -y snapd
+
+    # Enable snapd services
+    if command -v systemctl &> /dev/null; then
+        sudo systemctl enable --now snapd
+        sudo systemctl enable --now snapd.apparmor
+    fi
+
+    echo "✅ Snap installed (may need to restart shell for snap command)"
+else
+    echo "Snap already installed"
+fi
+
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then
     echo "Installing Bitwarden CLI via snap..."
