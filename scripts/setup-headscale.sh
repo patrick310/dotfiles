@@ -68,8 +68,12 @@ setup_service_user() {
     setup_service_directories "$HEADSCALE_USER" \
         "/etc/headscale" \
         "/var/lib/headscale" \
-        "/var/log/headscale" \
-        "/var/run/headscale"
+        "/var/log/headscale"
+
+    # Create runtime directory (in /run, not /var/run)
+    sudo mkdir -p /run/headscale
+    sudo chown "$HEADSCALE_USER:$HEADSCALE_USER" /run/headscale
+    sudo chmod 755 /run/headscale
 }
 
 # Deploy configuration
@@ -189,18 +193,20 @@ initialize_database() {
     fi
 }
 
-# Create initial namespace/user
-create_namespace() {
-    echo "  Creating initial namespace: $NAMESPACE"
+# Create initial user (replaces namespace in v0.23+)
+create_user() {
+    local username="${HEADSCALE_USER_NAME:-default}"
 
-    # Check if namespace exists
-    if sudo -u "$HEADSCALE_USER" headscale namespaces list 2>/dev/null | grep -q "^$NAMESPACE"; then
-        echo "  ✓ Namespace '$NAMESPACE' already exists"
+    echo "  Creating initial user: $username"
+
+    # Check if user exists
+    if sudo -u "$HEADSCALE_USER" headscale users list 2>/dev/null | grep -q "^$username"; then
+        echo "  ✓ User '$username' already exists"
     else
-        if sudo -u "$HEADSCALE_USER" headscale namespaces create "$NAMESPACE" &>/dev/null; then
-            echo "  ✓ Namespace '$NAMESPACE' created"
+        if sudo -u "$HEADSCALE_USER" headscale users create "$username" &>/dev/null; then
+            echo "  ✓ User '$username' created"
         else
-            echo "  ⚠️  Failed to create namespace (may need manual creation)"
+            echo "  ⚠️  Failed to create user (may need manual creation)"
         fi
     fi
 }
@@ -222,7 +228,10 @@ show_instructions() {
     echo "     sudo systemctl restart headscale"
     echo ""
     echo "  4. Create a pre-auth key for device enrollment:"
-    echo "     sudo -u headscale headscale preauthkeys create -e 24h --namespace $NAMESPACE"
+    echo "     # First, list users to get the user ID:"
+    echo "     sudo -u headscale headscale users list"
+    echo "     # Then create key using the numeric ID:"
+    echo "     sudo -u headscale headscale preauthkeys create --user 1 -e 24h"
     echo ""
     echo "  5. On client devices, install Tailscale and connect:"
     echo "     tailscale up --login-server https://your-domain.com --authkey YOUR_KEY"
@@ -274,7 +283,7 @@ main() {
     # Wait for service to start
     if wait_for_system_service "headscale.service" 10; then
         initialize_database
-        create_namespace
+        create_user
         show_instructions
 
         echo "✅ Headscale VPN setup complete!"
