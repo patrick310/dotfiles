@@ -69,7 +69,12 @@ f() {
     find . -iname "*$1*"
 }
 
-# Quick backup
+# Quick backup (for interactive use)
+# NOTE: For scripts, use lib/backup.sh which provides more robust functionality:
+#   - backup_file() - with backup directory support
+#   - backup_directory() - compressed archives
+#   - clean_old_backups() - automatic cleanup
+#   - restore_backup() - with safety backups
 backup() {
     cp "$1" "$1.bak.$(date +%Y%m%d-%H%M%S)"
 }

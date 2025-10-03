@@ -1,0 +1,7 @@
+# Headscale VPN Server Configuration
+#
+# This module contains headscale configuration that will be copied
+# to /etc/headscale/config.yaml by scripts/setup-headscale.sh
+#
+# Note: This is NOT stowed to home directory since headscale runs
+# as a service user and needs config in /etc/headscale/

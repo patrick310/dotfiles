@@ -3,7 +3,20 @@
 #
 # This server acts as a bridge between Syncthing (devices) and Google Drive (cloud)
 
+set -eo pipefail
+
 PROFILE="gateway"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+# Source libraries
+# shellcheck source=lib/sync.sh
+source "$DOTFILES_DIR/lib/sync.sh"
+# shellcheck source=lib/service-user.sh
+source "$DOTFILES_DIR/lib/service-user.sh"
+# shellcheck source=lib/systemd.sh
+source "$DOTFILES_DIR/lib/systemd.sh"
+# shellcheck source=lib/backup.sh
+source "$DOTFILES_DIR/lib/backup.sh"
 
 # Check prerequisites
 check_prerequisites() {
@@ -30,29 +43,15 @@ check_prerequisites() {
 setup_syncthing() {
     echo "    Setting up Syncthing..."
 
-    # Enable and start service
-    systemctl --user enable syncthing.service &> /dev/null || true
-    systemctl --user start syncthing.service &> /dev/null || true
-
-    # Wait for syncthing to start
-    sleep 2
-
-    if systemctl --user is-active syncthing.service &> /dev/null; then
-        echo "      ✓ Syncthing service enabled and started"
-    else
-        echo "      ⚠️  Syncthing service may not be running"
-    fi
+    # Use library function to setup systemd service
+    setup_syncthing_systemd
 
     # Show device ID
     echo ""
     echo "    📱 Gateway Server Device ID:"
 
     local device_id
-    if [ -f ~/.local/state/syncthing/cert.pem ]; then
-        device_id=$(syncthing --device-id 2>/dev/null)
-    elif [ -f ~/.config/syncthing/cert.pem ]; then
-        device_id=$(syncthing --device-id 2>/dev/null)
-    fi
+    device_id=$(get_syncthing_device_id)
 
     if [ -n "$device_id" ]; then
         echo ""
@@ -69,15 +68,11 @@ setup_syncthing() {
 save_gateway_device_id() {
     echo "    Saving gateway device ID to config..."
 
+    # Use library function with retry logic
     local device_id
-    if [ -f ~/.local/state/syncthing/cert.pem ]; then
-        device_id=$(syncthing --device-id 2>/dev/null)
-    elif [ -f ~/.config/syncthing/cert.pem ]; then
-        device_id=$(syncthing --device-id 2>/dev/null)
-    fi
-
-    if [ -z "$device_id" ]; then
-        echo "      ⚠️  Could not get device ID (syncthing not started yet?)"
+    if ! device_id=$(get_syncthing_device_id_with_retry 5); then
+        echo "      ⚠️  Could not get device ID after 5 attempts"
+        echo "         Run script again or check manually: syncthing --device-id"
         return 1
     fi
 
@@ -118,6 +113,16 @@ EOF
     echo "      ✓ Device ID saved to private-dots/config/sync-devices.yaml"
     echo "      💡 Commit this to your private-dots repo:"
     echo "         cd ~/private-dots && git add config/ && git commit -m 'Add gateway device ID'"
+}
+
+# Setup Rclone service user
+setup_rclone_user() {
+    echo "    Setting up rclone-sync service user..."
+
+    create_service_user "rclone-sync" "/var/lib/rclone-sync"
+    setup_service_directories "rclone-sync" "/var/lib/rclone-sync" "/var/log/rclone-sync"
+
+    echo "      ✓ Service user created"
 }
 
 # Setup Rclone
@@ -162,27 +167,33 @@ setup_rclone() {
 create_sync_script() {
     echo "    Creating cloud sync script..."
 
+    # Get syncthing folders for gateway profile
+    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local folders=()
+
+    if source "$script_dir/setup-folders.sh" "gateway" > /dev/null 2>&1; then
+        mapfile -t folders < <(get_folders_by_sync_type "syncthing")
+    fi
+
     mkdir -p ~/bin
 
-    cat > ~/bin/sync-to-cloud.sh << 'EOF'
+    cat > ~/bin/sync-to-cloud.sh << 'SCRIPT_START'
 #!/bin/bash
-# Sync folders to Google Drive (one-way backup)
+# Generated sync script - Syncs folders to Google Drive
 # Excludes Syncthing metadata
 
-# Log file
 LOG_FILE="$HOME/.local/state/sync-to-cloud.log"
 mkdir -p "$(dirname "$LOG_FILE")"
 
 echo "=== Sync started: $(date) ===" >> "$LOG_FILE"
 
-# Function to sync a folder
 sync_folder() {
     local folder=$1
     local remote=$2
 
-    if [ -d "$HOME/$folder" ]; then
+    if [ -d "$folder" ]; then
         echo "Syncing $folder..." >> "$LOG_FILE"
-        rclone sync "$HOME/$folder" "$remote" \
+        rclone sync "$folder" "$remote" \
             --exclude ".stversions/**" \
             --exclude ".stfolder/**" \
             --exclude ".stignore" \
@@ -191,17 +202,22 @@ sync_folder() {
     fi
 }
 
-# Sync each folder
-sync_folder "Documents" "gdrive:Documents"
-sync_folder "Photos" "gdrive:Photos"
-sync_folder "playground" "gdrive:playground"
+SCRIPT_START
+
+    # Add sync commands for each folder
+    for folder in "${folders[@]}"; do
+        local folder_name="${folder/#$HOME\//}"
+        echo "sync_folder \"$folder\" \"gdrive:$folder_name\"" >> ~/bin/sync-to-cloud.sh
+    done
+
+    cat >> ~/bin/sync-to-cloud.sh << 'SCRIPT_END'
 
 echo "=== Sync completed: $(date) ===" >> "$LOG_FILE"
 echo "" >> "$LOG_FILE"
-EOF
+SCRIPT_END
 
     chmod +x ~/bin/sync-to-cloud.sh
-    echo "      ✓ Created ~/bin/sync-to-cloud.sh"
+    echo "      ✓ Created ~/bin/sync-to-cloud.sh (syncing ${#folders[@]} folders)"
 }
 
 # Setup cron job
@@ -230,7 +246,10 @@ show_gateway_folders() {
     local script_dir
     script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     # shellcheck source=scripts/setup-folders.sh
-    source "$script_dir/setup-folders.sh" "$PROFILE" &> /dev/null
+    if ! source "$script_dir/setup-folders.sh" "$PROFILE" > /dev/null; then
+        echo "      ⚠️  Could not load folder configuration"
+        return 1
+    fi
 
     local syncthing_folders
     mapfile -t syncthing_folders < <(get_folders_by_sync_type "syncthing")
@@ -275,6 +294,7 @@ main() {
 
     setup_syncthing
     save_gateway_device_id
+    setup_rclone_user
     setup_rclone
     create_sync_script
     setup_cron
