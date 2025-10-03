@@ -16,6 +16,7 @@ tmux
 fzf
 ripgrep
 fd-find
+starship
 
 # Shell enhancements
 bash-completion
