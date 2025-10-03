@@ -111,6 +111,17 @@ create_directories() {
     mkdir -p ~/.local/bin
     mkdir -p ~/.local/share
     mkdir -p ~/.cache
+
+    mkdir -p ~/code/work
+    mkdir -p ~/code/forks
+    mkdir -p ~/code/spikes
+    mkdir -p ~/code/personal
+
+    mkdir -p ~/tmp
+
+    mkdir -p ~/Downloads
+
+    
 }
 
 # Detect stow conflicts for a package
