@@ -152,7 +152,7 @@ backup_conflicting_files() {
 
     echo "    ⚠️  Conflicts detected in package '$package':"
     for file in "${conflicts[@]}"; do
-        echo "       ~/.${file}"
+        echo "       ~/${file}"
     done
 
     if [ "$DRY_RUN" = true ]; then
@@ -364,24 +364,6 @@ run_setup_scripts() {
         return
     fi
 
-    # Folder structure (with profile)
-    if [ -f "$DOTFILES_DIR/scripts/setup-folders.sh" ]; then
-        bash "$DOTFILES_DIR/scripts/setup-folders.sh" "$SYNC_PROFILE"
-    fi
-
-    # Sync setup (profile-specific)
-    if [ "$SYNC_PROFILE" = "gateway" ]; then
-        # Gateway server: Syncthing + Rclone
-        if [ -f "$DOTFILES_DIR/scripts/setup-sync-gateway.sh" ]; then
-            bash "$DOTFILES_DIR/scripts/setup-sync-gateway.sh"
-        fi
-    else
-        # Personal device: Syncthing only
-        if [ -f "$DOTFILES_DIR/scripts/setup-syncthing.sh" ]; then
-            bash "$DOTFILES_DIR/scripts/setup-syncthing.sh" "$SYNC_PROFILE"
-        fi
-    fi
-
     # KDE setup (only if running KDE)
     if [ "$XDG_CURRENT_DESKTOP" = "KDE" ] && [ -f "$DOTFILES_DIR/scripts/setup-kde.sh" ]; then
         bash "$DOTFILES_DIR/scripts/setup-kde.sh"
@@ -391,47 +373,6 @@ run_setup_scripts() {
     if [ -d "$HOME/private-dots" ] && [ -f "$DOTFILES_DIR/scripts/setup-secrets.sh" ]; then
         bash "$DOTFILES_DIR/scripts/setup-secrets.sh"
     fi
-}
-
-# Prompt for sync profile
-select_sync_profile() {
-    # Skip prompt if SYNC_PROFILE already set
-    if [ -n "$SYNC_PROFILE" ]; then
-        echo "Using sync profile: $SYNC_PROFILE"
-        echo ""
-        return 0
-    fi
-
-    # Skip prompt in dry-run mode (use default)
-    if [ "$DRY_RUN" = true ]; then
-        SYNC_PROFILE="desktop"
-        return 0
-    fi
-
-    echo "Select sync profile for this machine:"
-    echo "  1) minimal   - Lightweight (code + Documents sync only)"
-    echo "  2) desktop   - Full workstation (all folders sync)"
-    echo "  3) gateway   - Sync gateway server (Syncthing + Rclone to Google Drive)"
-    echo "  4) server    - Development server (code + Documents)"
-    echo ""
-    read -p "Choose profile [1-4] (default: 2): " profile_choice
-
-    case $profile_choice in
-        1) SYNC_PROFILE="minimal" ;;
-        2|"") SYNC_PROFILE="desktop" ;;
-        3) SYNC_PROFILE="gateway" ;;
-        4) SYNC_PROFILE="server" ;;
-        *)
-            echo "⚠️  Invalid choice, using 'desktop' as default"
-            SYNC_PROFILE="desktop"
-            ;;
-    esac
-
-    echo "✓ Using profile: $SYNC_PROFILE"
-    echo ""
-
-    # Export for child scripts
-    export SYNC_PROFILE
 }
 
 # Main execution
@@ -444,7 +385,6 @@ main() {
     echo "🔧 Bootstrapping dotfiles..."
     echo
 
-    select_sync_profile
     install_prerequisites
     create_directories
     stow_dotfiles
@@ -465,8 +405,14 @@ main() {
             echo "📦 Backed up files: $BACKUP_DIR/"
         fi
 
-        echo "📝 Review changes: cd $DOTFILES_DIR && git status"
-        echo "🔄 Reload shell: source ~/.bashrc"
+        echo ""
+        echo "📝 Next steps:"
+        echo "   1. Reload shell: source ~/.bashrc"
+        if [ -d "$HOME/private-dots" ]; then
+            echo "   2. Setup home folders & sync: ~/private-dots/setup-home.sh"
+        fi
+        echo ""
+        echo "💡 For quick server setup, you're done! Skip step 2."
     fi
 }
 
