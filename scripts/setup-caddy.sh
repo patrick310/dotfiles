@@ -7,7 +7,17 @@
 set -eo pipefail
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PRIVATE_DOTS_DIR="${PRIVATE_DOTS_DIR:-$HOME/private-dots}"
+
+# Get the actual user's home directory even when running with sudo
+if [ -n "$SUDO_USER" ]; then
+    ACTUAL_USER="$SUDO_USER"
+    ACTUAL_HOME=$(getent passwd "$SUDO_USER" | cut -d: -f6)
+else
+    ACTUAL_USER="$USER"
+    ACTUAL_HOME="$HOME"
+fi
+
+PRIVATE_DOTS_DIR="${PRIVATE_DOTS_DIR:-$ACTUAL_HOME/private-dots}"
 
 # Source libraries
 # shellcheck source=lib/backup.sh
@@ -113,8 +123,9 @@ deploy_caddyfile() {
 
     # Backup existing config if present
     if [ -f "$config_dest" ]; then
-        backup_file "$config_dest" "/var/backups"
-        echo "  ✓ Backed up existing Caddyfile"
+        local backup_path="/var/backups/Caddyfile.bak.$(date +%Y%m%d-%H%M%S)"
+        sudo cp "$config_dest" "$backup_path"
+        echo "  ✓ Backed up existing Caddyfile to $backup_path"
     fi
 
     # Copy configuration
