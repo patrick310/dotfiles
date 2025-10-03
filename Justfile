@@ -22,13 +22,13 @@ restow package:
 install-packages os profile="desktop":
     ./install/{{os}}.sh {{profile}}
 
-check:
-    @if ! command -v shellcheck >/dev/null; then \
-        echo "shellcheck not installed. Install it to run checks." >&2; \
-        exit 1; \
+check profile="desktop":
+    @if command -v shellcheck >/dev/null; then \
+        echo "Running shellcheck..."; \
+        shellcheck bootstrap.sh lib/*.sh scripts/*.sh install/*.sh; \
+    else \
+        echo "shellcheck not installed. Skipping lint step." >&2; \
     fi
-    @echo "Running shellcheck..."
-    shellcheck bootstrap.sh lib/*.sh scripts/*.sh install/*.sh
     @echo "Simulating stow for all packages..."
     pkgs=$(find . -maxdepth 2 -type f -name '.stow' -printf '%h\\n' | xargs -r -n1 basename | sort -u)
     if [ -n "$pkgs" ]; then \
@@ -39,3 +39,4 @@ check:
     else \
         echo "  (no packages found)"; \
     fi
+    ./scripts/check-packages.sh {{profile}}

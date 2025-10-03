@@ -67,7 +67,8 @@ Useful commands from the `Justfile`:
 just                    # same as `just bootstrap`
 just bootstrap server   # run bootstrap for a server
 just install-packages ubuntu desktop
-just check              # shellcheck + stow simulation
+just check              # shellcheck + stow simulation + package audit
+just check server       # run checks for a profile
 ```
 
 ## Updating

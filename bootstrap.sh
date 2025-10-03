@@ -14,6 +14,8 @@ PROFILE="$DEFAULT_PROFILE"
 FORCE_MODE=false
 DRY_RUN=false
 
+# shellcheck source=lib/os.sh
+source "$LIB_DIR/os.sh"
 # shellcheck source=lib/prereqs.sh
 source "$LIB_DIR/prereqs.sh"
 # shellcheck source=lib/stow.sh
@@ -36,22 +38,6 @@ Examples:
   ./bootstrap.sh --profile server    # Server profile
   ./bootstrap.sh --force --dry-run   # Preview with forced backups
 HELP
-}
-
-detect_os() {
-    if [ -f /etc/os-release ]; then
-        # shellcheck disable=SC1091
-        . /etc/os-release
-        case "$ID" in
-            opensuse*) OS="opensuse" ;;
-            ubuntu|debian) OS="ubuntu" ;;
-            fedora) OS="fedora" ;;
-            *) OS="$ID" ;;
-        esac
-    else
-        echo "Warning: Could not detect OS"
-        OS="unknown"
-    fi
 }
 
 configure_bashrc() {

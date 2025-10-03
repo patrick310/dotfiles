@@ -24,6 +24,7 @@ lazygit
 # Shell enhancements
 bash-completion
 tree
+shellcheck
 
 # Development languages and tools
 python3
@@ -59,6 +60,7 @@ rsync
 # Network utilities
 net-tools
 dnsutils
+wireguard-tools
 
 # Configuration tools
 yq
