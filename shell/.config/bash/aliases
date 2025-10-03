@@ -17,10 +17,26 @@ alias ~='cd ~'
 alias -- -='cd -'  # Go back
 
 # Better ls
-alias ll='ls -alFh'
-alias la='ls -A'
-alias l='ls -CF'
-alias lt='ls -laht'     # sort by time
+if command -v eza &>/dev/null; then
+    # Modern eza aliases
+    alias ls='eza --group-directories-first'
+    alias ll='eza -la --icons --group-directories-first'
+    alias la='eza -a'
+    alias l='eza -F'
+    alias lt='eza -la --sort=modified'
+    alias tree='eza --tree'
+    alias lsgit='eza -la --git --git-ignore'  # Show git status
+    alias llm='eza -lbGd --header --git --sort=modified'  # Modified sort with header
+    alias lla='eza -la --icons --header --git'  # Everything!
+else
+    # Traditional ls aliases  
+    alias ls='ls --color=auto --group-directories-first'
+    alias ll='ls -alFh'
+    alias la='ls -A'
+    alias l='ls -CF'
+    alias lt='ls -laht'
+fi
+
 alias ..='cd ..'       
 alias ...='cd ../..'   
 alias mkdir='mkdir -pv'  
@@ -60,5 +76,4 @@ alias mv='mv -i'
 
 # Modern replacements (if installed)
 command -v bat &>/dev/null && alias cat='bat'
-command -v eza &>/dev/null && alias ls='eza --group-directories-first'
 command -v rg &>/dev/null && alias grep='rg'
