@@ -162,8 +162,10 @@ setup_firewall() {
         return 0
     fi
 
-    # Headscale HTTP/HTTPS
-    sudo ufw allow 8080/tcp comment 'Headscale control server'
+    # NOTE: When using Caddy reverse proxy:
+    # - Headscale listens on localhost:8080 (no external access needed)
+    # - Caddy handles external HTTPS on port 443
+    # - Firewall is configured by setup-caddy.sh (ports 80, 443)
 
     # DERP relay (if embedded DERP is enabled)
     # sudo ufw allow 3478/udp comment 'Headscale DERP STUN'
@@ -171,8 +173,8 @@ setup_firewall() {
     # WireGuard (if clients use default port)
     # sudo ufw allow 41641/udp comment 'WireGuard'
 
-    echo "  ✓ Firewall configured (port 8080/tcp)"
-    echo "  💡 Enable additional ports if using embedded DERP or specific WireGuard ports"
+    echo "  ✓ Firewall: No changes needed (Caddy will handle external traffic)"
+    echo "  💡 Run setup-caddy.sh to configure ports 80/443"
 }
 
 # Initialize database
@@ -208,25 +210,27 @@ show_instructions() {
     echo ""
     echo "  📝 Next Steps:"
     echo ""
-    echo "  1. Customize configuration (if needed):"
-    echo "     sudo nano /etc/headscale/config.yaml"
-    echo "     - Set server_url to your public domain"
-    echo "     - Configure TLS/Let's Encrypt if using HTTPS"
-    echo "     - Adjust DNS settings (base_domain, nameservers)"
+    echo "  1. Set up Caddy reverse proxy (REQUIRED for HTTPS):"
+    echo "     ~/dotfiles/scripts/setup-caddy.sh"
     echo ""
-    echo "  2. Restart headscale after config changes:"
+    echo "  2. Update headscale config with your domain:"
+    echo "     sudo nano /etc/headscale/config.yaml"
+    echo "     - Set server_url: https://your-domain.com"
+    echo "     - Update dns.base_domain if needed"
+    echo ""
+    echo "  3. Restart headscale after config changes:"
     echo "     sudo systemctl restart headscale"
     echo ""
-    echo "  3. Create a pre-auth key for device enrollment:"
+    echo "  4. Create a pre-auth key for device enrollment:"
     echo "     sudo -u headscale headscale preauthkeys create -e 24h --namespace $NAMESPACE"
     echo ""
-    echo "  4. On client devices, install Tailscale and connect:"
-    echo "     tailscale up --login-server http://YOUR_SERVER:8080 --authkey YOUR_KEY"
+    echo "  5. On client devices, install Tailscale and connect:"
+    echo "     tailscale up --login-server https://your-domain.com --authkey YOUR_KEY"
     echo ""
-    echo "  5. List connected devices:"
+    echo "  6. List connected devices:"
     echo "     sudo -u headscale headscale nodes list"
     echo ""
-    echo "  6. Check service status:"
+    echo "  7. Check service status:"
     echo "     sudo systemctl status headscale"
     echo "     sudo journalctl -u headscale -f"
     echo ""

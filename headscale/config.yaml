@@ -2,12 +2,13 @@
 # Headscale Configuration
 # This config will be copied to /etc/headscale/config.yaml by setup-headscale.sh
 
-# The url clients will connect to (replace with your domain)
-# For production, use: https://your-domain.com:443
-server_url: http://0.0.0.0:8080
+# The url clients will connect to (use your actual domain)
+# This should match your Caddy reverse proxy domain
+server_url: https://mesh.weber.us.org
 
 # Address to listen to / bind to on the server
-listen_addr: 0.0.0.0:8080
+# Listen only on localhost since Caddy will handle external traffic
+listen_addr: 127.0.0.1:8080
 
 # Address to listen to /metrics and /debug
 metrics_listen_addr: 127.0.0.1:9090
@@ -65,15 +66,17 @@ database:
     write_ahead_log: true
     wal_autocheckpoint: 1000
 
-# TLS configuration (Let's Encrypt)
+# TLS configuration
+# NOTE: TLS is handled by Caddy reverse proxy
+# Leave these empty when using a reverse proxy
 acme_url: https://acme-v02.api.letsencrypt.org/directory
 acme_email: ""
 tls_letsencrypt_hostname: ""
 tls_letsencrypt_cache_dir: /var/lib/headscale/cache
 tls_letsencrypt_challenge_type: HTTP-01
-tls_letsencrypt_listen: ":http"
+tls_letsencrypt_listen: ""  # Disabled - Caddy handles TLS
 
-# Custom TLS certificates (if not using Let's Encrypt)
+# Custom TLS certificates (not needed with Caddy)
 tls_cert_path: ""
 tls_key_path: ""
 
