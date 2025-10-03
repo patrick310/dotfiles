@@ -24,7 +24,7 @@ detect_conflicts() {
     local conflicts=()
 
     local stow_output
-    stow_output=$(stow --no --verbose=1 "$package" 2>&1)
+    stow_output=$(stow --no --verbose=1 --ignore='.stow' "$package" 2>&1)
     local stow_exit=$?
     stow_output=$(echo "$stow_output" | grep -v "BUG in find_stowed_path" || true)
 
@@ -128,7 +128,7 @@ rollback() {
 
     (cd "$DOTFILES_DIR" && for package in "${STOWED_PACKAGES[@]}"; do
         echo "    Unstowing: $package"
-        stow --delete "$package" 2>&1 | grep -v "BUG in find_stowed_path" || true
+        stow --delete --ignore='.stow' "$package" 2>&1 | grep -v "BUG in find_stowed_path" || true
         sed -i "/^$package$/d" "$STOW_STATE_FILE" 2>/dev/null || true
     done)
 
@@ -160,7 +160,7 @@ stow_package() {
 
         echo "    $package: already stowed, restowing..."
         local stow_output
-        stow_output=$(stow --restow "$package" 2>&1)
+        stow_output=$(stow --restow --ignore='.stow' "$package" 2>&1)
         local stow_exit=$?
         stow_output=$(echo "$stow_output" | grep -v "BUG in find_stowed_path" || true)
         [ -n "$stow_output" ] && echo "$stow_output"
@@ -190,7 +190,7 @@ stow_package() {
 
     echo "    $package: stowing..."
     local stow_output
-    stow_output=$(stow "$package" 2>&1)
+    stow_output=$(stow --ignore='.stow' "$package" 2>&1)
     local stow_exit=$?
     stow_output=$(echo "$stow_output" | grep -v "BUG in find_stowed_path" || true)
     [ -n "$stow_output" ] && echo "$stow_output"
@@ -220,6 +220,11 @@ stow_dotfiles() {
     echo "==> Stowing configurations..."
 
     (cd "$DOTFILES_DIR" && for package in "${packages[@]}"; do
+        # Skip kde package if not in KDE environment
+        if [[ "$package" == "kde" ]] && [[ "${XDG_CURRENT_DESKTOP:-}" != "KDE" ]]; then
+            echo "    $package: skipping (not in KDE environment)"
+            continue
+        fi
         stow_package "$package"
     done)
 }

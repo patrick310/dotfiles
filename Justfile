@@ -34,7 +34,7 @@ check profile="desktop":
     if [ -n "${pkgs:-}" ]; then \
         for pkg in ${pkgs:-}; do \
             echo "  -> $pkg"; \
-            stow --dir "$PWD" --target "$HOME" --no --verbose=0 "$pkg" >/dev/null || true; \
+            stow --dir "$PWD" --target "$HOME" --no --verbose=0 --ignore='.stow' "$pkg" >/dev/null || true; \
         done; \
     else \
         echo "  (no packages found)"; \
