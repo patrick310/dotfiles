@@ -1,7 +1,16 @@
+# Add local bins to PATH (order matters!)
+export PATH="$HOME/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/go/bin:$PATH"
+export PATH="$HOME/.cargo/bin:$PATH"
+
+# Remove duplicates from PATH
+export PATH=$(echo "$PATH" | tr ':' '\n' | awk '!seen[$0]++' | tr '\n' ':' | sed 's/:$//')
+
 # Development paths (lowercase)
 export CODE_DIR="$HOME/code"
 export SPIKES_DIR="$CODE_DIR/spikes"
-export SCRIPTS_DIR="$HOME/bin"
+export SCRIPTS_DIR="$HOME/.local/bin"
 
 # XDG paths (capitalized)
 export DOCUMENTS_DIR="$HOME/Documents"

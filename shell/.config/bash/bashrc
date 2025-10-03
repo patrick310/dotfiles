@@ -14,6 +14,17 @@ HISTFILESIZE=20000
 HISTIGNORE="ls:cd:cd -:pwd:exit:date:* --help"  
 PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
 
+# Timestamp in history
+export HISTTIMEFORMAT="%F %T "
+
+# Case insensitive completion
+bind "set completion-ignore-case on"
+
+# Partial completion with arrow keys
+bind "set show-all-if-ambiguous on"
+bind "set menu-complete-display-prefix on"
+bind '"\t": menu-complete'
+
 # ============ BETTER NAVIGATION ============
 shopt -s checkwinsize
 shopt -s globstar
