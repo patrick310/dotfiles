@@ -123,8 +123,12 @@ detect_conflicts() {
     else
         # Parse conflict messages
         while IFS= read -r line; do
-            if [[ $line =~ "existing target is" ]]; then
-                # Extract filename from error message
+            if [[ $line =~ "over existing target" ]]; then
+                # Extract filename: "over existing target .profile since..."
+                local file=$(echo "$line" | sed -n 's/.*over existing target \([^ ]*\).*/\1/p')
+                conflicts+=("$file")
+            elif [[ $line =~ "existing target is" ]]; then
+                # Older stow format: "existing target is: .profile"
                 local file=$(echo "$line" | sed -n 's/.*: \(.*\)$/\1/p')
                 conflicts+=("$file")
             fi
