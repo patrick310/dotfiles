@@ -43,7 +43,12 @@ if ! command -v snap &> /dev/null; then
         sudo systemctl enable --now snapd.apparmor
     fi
 
-    echo "✅ Snap installed (may need to restart shell for snap command)"
+    # Create snapd socket symlink (required for openSUSE)
+    sudo ln -sf /var/lib/snapd/snap /snap 2>/dev/null || true
+
+    echo "✅ Snap installed (restarting snapd for socket setup...)"
+    sudo systemctl restart snapd
+    sleep 2
 else
     echo "Snap already installed"
 fi
@@ -51,7 +56,11 @@ fi
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then
     echo "Installing Bitwarden CLI via snap..."
-    sudo snap install bw
+    if ! sudo snap install bw 2>&1; then
+        echo "⚠️  Snap installation had issues (snap may need initialization)"
+        echo "   Fix with: sudo ln -sf /var/lib/snapd/snap /snap && sudo systemctl restart snapd"
+        echo "   Then retry: sudo snap install bw"
+    fi
 else
     echo "Note: Snap not available, install Bitwarden CLI manually from:"
     echo "  https://bitwarden.com/help/cli/"
