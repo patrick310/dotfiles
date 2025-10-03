@@ -17,7 +17,7 @@ opensuse_packages=$(echo "$packages" | \
     sed 's/g++/gcc-c++/g' | \
     sed 's/dnsutils/bind-utils/g' | \
     sed 's/\<nodejs\>/nodejs-default/g' | \
-    sed 's/\<npm\>//g')  # npm comes with nodejs-default
+    sed 's/\<npm\>/npm-default/g')
 
 # Install packages (zypper will skip packages not found)
 echo "Installing packages (missing packages will be skipped)..."
@@ -67,17 +67,22 @@ else
 fi
 
 # Install Node.js tools globally
-echo "Installing global npm packages..."
-packages_to_install=()
+if command -v npm &> /dev/null; then
+    echo "Installing global npm packages..."
+    packages_to_install=()
 
-command -v pnpm &> /dev/null || packages_to_install+=(pnpm)
-command -v yarn &> /dev/null || packages_to_install+=(yarn)
+    command -v pnpm &> /dev/null || packages_to_install+=(pnpm)
+    command -v yarn &> /dev/null || packages_to_install+=(yarn)
 
-if [ ${#packages_to_install[@]} -gt 0 ]; then
-    echo "  Installing: ${packages_to_install[*]}"
-    sudo npm install -g "${packages_to_install[@]}"
+    if [ ${#packages_to_install[@]} -gt 0 ]; then
+        echo "  Installing: ${packages_to_install[*]}"
+        sudo npm install -g "${packages_to_install[@]}"
+    else
+        echo "  All global npm packages already installed"
+    fi
 else
-    echo "  All global npm packages already installed"
+    echo "⚠️  npm not found, skipping global package installation"
+    echo "   Install with: sudo zypper install npm-default"
 fi
 
 # Install SOPS from OBS repository
