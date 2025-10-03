@@ -13,11 +13,11 @@ bootstrap-dry-run profile="desktop":
 
 stow package:
     @echo "Stowing {{package}}"
-    stow {{package}}
+    stow --ignore='.stow' {{package}}
 
 restow package:
     @echo "Restowing {{package}}"
-    stow --restow {{package}}
+    stow --restow --ignore='.stow' {{package}}
 
 install-packages os profile="desktop":
     ./install/{{os}}.sh {{profile}}
