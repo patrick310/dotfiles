@@ -1,0 +1,3 @@
+# Additional packages for desktop profile
+syncthing
+rclone

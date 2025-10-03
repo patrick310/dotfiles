@@ -1,0 +1,2 @@
+# Additional packages for minimal profile
+# (Leave empty for lean installs)

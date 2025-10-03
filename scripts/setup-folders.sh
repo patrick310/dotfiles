@@ -126,4 +126,6 @@ main() {
     show_sync_summary
 }
 
-main
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi

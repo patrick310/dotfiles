@@ -19,6 +19,7 @@ fd-find
 starship
 eza
 bat
+lazygit
 
 # Shell enhancements
 bash-completion
@@ -29,7 +30,13 @@ python3
 python3-pip
 nodejs
 npm
+direnv
+git-delta
+just
+rustup
 
+# Monitoring and performance
+btop
 # Container and virtualization (removed for now)
 # docker
 # docker-compose
@@ -52,10 +59,6 @@ rsync
 # Network utilities
 net-tools
 dnsutils
-
-# Sync and backup tools
-syncthing
-rclone
 
 # Configuration tools
 yq

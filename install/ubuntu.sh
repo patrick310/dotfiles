@@ -5,8 +5,46 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMON_PACKAGES="$SCRIPT_DIR/common.txt"
+PROFILE="${1:-${BOOTSTRAP_PROFILE:-desktop}}"
+PROFILE_PACKAGES="$SCRIPT_DIR/profiles/${PROFILE}.txt"
 
-echo "Installing packages for Ubuntu/Debian..."
+echo "Installing packages for Ubuntu/Debian (profile: $PROFILE)..."
+
+read_packages() {
+    local file=$1
+    [[ -f $file ]] || return 0
+
+    while IFS= read -r line; do
+        [[ -z $line || $line =~ ^# ]] && continue
+        packages+=("$line")
+    done < "$file"
+}
+
+dedupe_packages() {
+    declare -A seen=()
+    local deduped=()
+    for pkg in "${packages[@]}"; do
+        if [[ -n $pkg && -z ${seen[$pkg]} ]]; then
+            deduped+=("$pkg")
+            seen[$pkg]=1
+        fi
+    done
+    packages=("${deduped[@]}")
+}
+
+packages=()
+read_packages "$COMMON_PACKAGES"
+if [ -f "$PROFILE_PACKAGES" ]; then
+    read_packages "$PROFILE_PACKAGES"
+else
+    echo "⚠️  Profile package list not found: install/profiles/${PROFILE}.txt"
+fi
+dedupe_packages
+
+if [ ${#packages[@]} -eq 0 ]; then
+    echo "No packages requested, skipping"
+    exit 0
+fi
 
 # Ensure software-properties-common is installed (needed for add-apt-repository)
 if ! dpkg -l | grep -q software-properties-common; then
@@ -24,18 +62,8 @@ fi
 # Update package list
 sudo apt update
 
-# Read package list, filter comments and empty lines
-packages=$(grep -v '^#' "$COMMON_PACKAGES" | grep -v '^$' | tr '\n' ' ')
-
-# Ubuntu-specific package name mappings
-ubuntu_packages=$(echo "$packages" | \
-    sed 's/fd-find/fd-find/g' | \
-    sed 's/g++/g++/g' | \
-    sed 's/dnsutils/dnsutils/g')
-
-# Install packages (continue on individual failures)
-echo "Installing packages (some may fail if not available)..."
-sudo apt install -y $ubuntu_packages || echo "Some packages may have failed to install"
+echo "Installing packages (missing packages will be noted)..."
+sudo apt install -y "${packages[@]}" || echo "Some packages may have failed to install"
 
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then

@@ -5,21 +5,63 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMON_PACKAGES="$SCRIPT_DIR/common.txt"
+PROFILE="${1:-${BOOTSTRAP_PROFILE:-desktop}}"
+PROFILE_PACKAGES="$SCRIPT_DIR/profiles/${PROFILE}.txt"
 
-echo "Installing packages for Fedora..."
+echo "Installing packages for Fedora (profile: $PROFILE)..."
 
-# Read package list, filter comments and empty lines
-packages=$(grep -v '^#' "$COMMON_PACKAGES" | grep -v '^$' | tr '\n' ' ')
+read_packages() {
+    local file=$1
+    [[ -f $file ]] || return 0
 
-# Fedora-specific package name mappings
-fedora_packages=$(echo "$packages" | \
-    sed 's/fd-find/fd-find/g' | \
-    sed 's/python3-pip/python3-pip/g' | \
-    sed 's/dnsutils/bind-utils/g')
+    while IFS= read -r line; do
+        [[ -z $line || $line =~ ^# ]] && continue
+        packages+=("$line")
+    done < "$file"
+}
 
-# Install packages (continue on individual failures)
-echo "Installing packages (some may fail if not available)..."
-sudo dnf install -y $fedora_packages || echo "Some packages may have failed to install"
+dedupe_packages() {
+    declare -A seen=()
+    local deduped=()
+    for pkg in "${packages[@]}"; do
+        if [[ -n $pkg && -z ${seen[$pkg]} ]]; then
+            deduped+=("$pkg")
+            seen[$pkg]=1
+        fi
+    done
+    packages=("${deduped[@]}")
+}
+
+map_package_name() {
+    local pkg=$1
+    case $pkg in
+        fd-find) echo "fd-find" ;;
+        dnsutils) echo "bind-utils" ;;
+        *) echo "$pkg" ;;
+    esac
+}
+
+packages=()
+read_packages "$COMMON_PACKAGES"
+if [ -f "$PROFILE_PACKAGES" ]; then
+    read_packages "$PROFILE_PACKAGES"
+else
+    echo "⚠️  Profile package list not found: install/profiles/${PROFILE}.txt"
+fi
+dedupe_packages
+
+if [ ${#packages[@]} -eq 0 ]; then
+    echo "No packages requested, skipping"
+    exit 0
+fi
+
+mapped_packages=()
+for pkg in "${packages[@]}"; do
+    mapped_packages+=("$(map_package_name "$pkg")")
+done
+
+echo "Installing packages (missing packages will be noted)..."
+sudo dnf install -y "${mapped_packages[@]}" || echo "Some packages may have failed to install"
 
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then

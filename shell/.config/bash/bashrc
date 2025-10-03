@@ -1,7 +1,9 @@
 # ~/.bashrc
 
 # Load ble.sh early for interactive shells; defer attach to end of file
-[[ $- == *i* ]] && source -- ~/.local/share/blesh/ble.sh --attach=none
+if [[ $- == *i* ]] && [[ -f ~/.local/share/blesh/ble.sh ]]; then
+    source -- ~/.local/share/blesh/ble.sh --attach=none
+fi
 
 # If not running interactively, don't do anything
 case $- in
@@ -99,4 +101,4 @@ fi
 # Local machine-specific settings
 [ -f ~/.bashrc.local ] && source ~/.bashrc.local
 
-[[ ! ${BLE_VERSION-} ]] || ble-attach
+[[ -z ${BLE_VERSION:-} ]] || ble-attach

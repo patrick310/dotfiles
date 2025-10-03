@@ -5,45 +5,84 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMMON_PACKAGES="$SCRIPT_DIR/common.txt"
+PROFILE="${1:-${BOOTSTRAP_PROFILE:-desktop}}"
+PROFILE_PACKAGES="$SCRIPT_DIR/profiles/${PROFILE}.txt"
 
-echo "Installing packages for openSUSE..."
+echo "Installing packages for openSUSE (profile: $PROFILE)..."
 
-# Read package list, filter comments and empty lines
-packages=$(grep -v '^#' "$COMMON_PACKAGES" | grep -v '^$' | tr '\n' ' ')
+read_packages() {
+    local file=$1
+    [[ -f $file ]] || return 0
 
-# openSUSE-specific package name mappings
-opensuse_packages=$(echo "$packages" | \
-    sed 's/fd-find/fd/g' | \
-    sed 's/g++/gcc-c++/g' | \
-    sed 's/dnsutils/bind-utils/g' | \
-    sed 's/\<nodejs\>/nodejs-default/g' | \
-    sed 's/\<npm\>/npm-default/g')
+    while IFS= read -r line; do
+        [[ -z $line || $line =~ ^# ]] && continue
+        packages+=("$line")
+    done < "$file"
+}
 
-# Install packages (zypper will skip packages not found)
+dedupe_packages() {
+    declare -A seen=()
+    local deduped=()
+    for pkg in "${packages[@]}"; do
+        if [[ -n $pkg && -z ${seen[$pkg]} ]]; then
+            deduped+=("$pkg")
+            seen[$pkg]=1
+        fi
+    done
+    packages=("${deduped[@]}")
+}
+
+map_package_name() {
+    local pkg=$1
+    case $pkg in
+        fd-find) echo "fd" ;;
+        g++) echo "gcc-c++" ;;
+        dnsutils) echo "bind-utils" ;;
+        nodejs) echo "nodejs-default" ;;
+        npm) echo "npm-default" ;;
+        *) echo "$pkg" ;;
+    esac
+}
+
+packages=()
+read_packages "$COMMON_PACKAGES"
+if [ -f "$PROFILE_PACKAGES" ]; then
+    read_packages "$PROFILE_PACKAGES"
+else
+    echo "⚠️  Profile package list not found: install/profiles/${PROFILE}.txt"
+fi
+dedupe_packages
+
+if [ ${#packages[@]} -eq 0 ]; then
+    echo "No packages requested, skipping"
+    exit 0
+fi
+
+mapped_packages=()
+for pkg in "${packages[@]}"; do
+    mapped_packages+=("$(map_package_name "$pkg")")
+done
+
 echo "Installing packages (missing packages will be skipped)..."
-sudo zypper install -y --no-recommends $opensuse_packages 2>&1 || echo "Note: Some packages may not be available"
+sudo zypper install -y --no-recommends "${mapped_packages[@]}" 2>&1 || echo "Note: Some packages may not be available"
 
 # Install Snap (if not already installed)
 if ! command -v snap &> /dev/null; then
     echo "Installing Snap support..."
 
-    # Add repo if not already present
     if ! zypper lr | grep -q "snappy"; then
         sudo zypper ar -f https://download.opensuse.org/repositories/system:/snappy/openSUSE_Tumbleweed/ snappy
         sudo zypper --gpg-auto-import-keys refresh
     fi
 
-    # Install snapd (official method with dup from snappy repo)
     sudo zypper dup --from snappy
     sudo zypper install -y snapd
 
-    # Enable snapd services
     if command -v systemctl &> /dev/null; then
         sudo systemctl enable --now snapd
         sudo systemctl enable --now snapd.apparmor
     fi
 
-    # Create snapd socket symlink (required for openSUSE)
     sudo ln -sf /var/lib/snapd/snap /snap 2>/dev/null || true
 
     echo "✅ Snap installed (restarting snapd for socket setup...)"

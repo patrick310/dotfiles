@@ -6,7 +6,7 @@
    <bookmark:icon name="folder-bookmark"/>
   </metadata>
  </info>
- <bookmark href="file://$HOME">
+ <bookmark href="file:///home/%u">
   <title>Home</title>
   <info>
    <metadata owner="http://freedesktop.org">
@@ -14,7 +14,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="file://$HOME/code">
+ <bookmark href="file:///home/%u/code">
   <title>Code</title>
   <info>
    <metadata owner="http://freedesktop.org">
@@ -22,7 +22,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="file://$HOME/code/personal">
+ <bookmark href="file:///home/%u/code/personal">
   <title>Personal</title>
   <info>
    <metadata owner="http://freedesktop.org">
@@ -30,7 +30,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="file://$HOME/code/work">
+ <bookmark href="file:///home/%u/code/work">
   <title>Work</title>
   <info>
    <metadata owner="http://freedesktop.org">
@@ -38,7 +38,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="file://$HOME/code/spikes">
+ <bookmark href="file:///home/%u/code/spikes">
   <title>Spikes</title>
   <info>
    <metadata owner="http://freedesktop.org">
@@ -46,7 +46,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="file://$HOME/Documents">
+ <bookmark href="file:///home/%u/Documents">
   <title>Documents</title>
   <info>
    <metadata owner="http://freedesktop.org">
@@ -54,7 +54,7 @@
    </metadata>
   </info>
  </bookmark>
- <bookmark href="file://$HOME/Downloads">
+ <bookmark href="file:///home/%u/Downloads">
   <title>Downloads</title>
   <info>
    <metadata owner="http://freedesktop.org">
