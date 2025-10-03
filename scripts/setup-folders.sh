@@ -24,7 +24,6 @@ FOLDER_CONFIG=(
     "Photos:syncthing:desktop,gateway"
     "Photos/screenshots:none:desktop,gateway"
     "playground:syncthing:desktop,gateway"
-    "bin:none:minimal,desktop,server,gateway"
     ".config:none:minimal,desktop,server,gateway"
     ".local/bin:none:minimal,desktop,server,gateway"
     ".local/share:none:minimal,desktop,server,gateway"
