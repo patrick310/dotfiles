@@ -337,6 +337,7 @@ stow_dotfiles() {
     stow_package "shell"
     stow_package "nvim"
     stow_package "kde"
+    stow_package "blesh"
 }
 
 # Ensure bashrc sources our config (idempotent)
