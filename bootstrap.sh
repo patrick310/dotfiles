@@ -50,7 +50,13 @@ done
 # Detect OS
 if [ -f /etc/os-release ]; then
     . /etc/os-release
-    OS=$ID
+    # Normalize OS name for script lookup
+    case "$ID" in
+        opensuse*) OS="opensuse" ;;
+        ubuntu|debian) OS="ubuntu" ;;
+        fedora) OS="fedora" ;;
+        *) OS="$ID" ;;
+    esac
 else
     echo "Warning: Could not detect OS"
     OS="unknown"
