@@ -74,7 +74,7 @@ backup_conflicting_files() {
         echo "      2. Skip this package"
         echo "      3. Abort bootstrap"
         echo
-        read -p "    Choose [1/2/3]: " choice
+        read -r -p "    Choose [1/2/3]: " choice
 
         case $choice in
             1) ;; # Continue

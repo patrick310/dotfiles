@@ -2,7 +2,9 @@
 
 # Distribution package installation helpers.
 
+# shellcheck disable=SC2034  # referenced after sourcing this file
 COLLECTED_PACKAGES=()
+# shellcheck disable=SC2034  # referenced after sourcing this file
 MAPPED_PACKAGES=()
 
 _lp_read_package_file() {
@@ -33,7 +35,7 @@ collect_packages_for_profile() {
     declare -A seen=()
     local deduped=()
     for pkg in "${COLLECTED_PACKAGES[@]}"; do
-        if [[ -n $pkg && -z ${seen[$pkg]} ]]; then
+        if [[ -n $pkg && -z ${seen[$pkg]+x} ]]; then
             deduped+=("$pkg")
             seen[$pkg]=1
         fi
@@ -80,6 +82,7 @@ install_profile_packages() {
     fi
 
     if [ "$DRY_RUN" = true ]; then
+        # shellcheck disable=SC2153
         echo "==> [DRY-RUN] Would run $OS-specific package installation for profile '$PROFILE'"
         return
     fi

@@ -151,6 +151,7 @@ main() {
     ensure_user_directories
 
     stow_setup_trap
+    # shellcheck disable=SC2119
     stow_dotfiles
 
     configure_bashrc

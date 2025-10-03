@@ -66,9 +66,11 @@ show_folders_to_sync() {
     echo ""
 
     # Source the folder config from setup-folders.sh
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
     # Get syncthing folders for this profile
+    # shellcheck source=scripts/setup-folders.sh
     source "$script_dir/setup-folders.sh" "$PROFILE" &> /dev/null
 
     local syncthing_folders

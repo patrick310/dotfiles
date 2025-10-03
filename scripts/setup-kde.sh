@@ -16,7 +16,8 @@ configure_kde_defaults() {
         return
     fi
 
-    local kwriteconfig=$(command -v kwriteconfig6 || command -v kwriteconfig5)
+    local kwriteconfig
+    kwriteconfig=$(command -v kwriteconfig6 || command -v kwriteconfig5)
 
     echo "      Setting KDE preferences..."
 
@@ -38,7 +39,8 @@ setup_kde_shortcuts() {
         return
     fi
 
-    local kwriteconfig=$(command -v kwriteconfig6 || command -v kwriteconfig5)
+    local kwriteconfig
+    kwriteconfig=$(command -v kwriteconfig6 || command -v kwriteconfig5)
 
     echo "      Setting up keyboard shortcuts..."
 
@@ -63,7 +65,8 @@ install_kwin_scripts() {
         return
     fi
 
-    local kpackagetool=$(command -v kpackagetool6 || command -v kpackagetool5)
+    local kpackagetool
+    kpackagetool=$(command -v kpackagetool6 || command -v kpackagetool5)
 
     echo "      Installing KWin tiling script (Polonium)..."
     local script_url="https://github.com/zeroxoneafour/polonium/releases/latest/download/polonium.kwinscript"

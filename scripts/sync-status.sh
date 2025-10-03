@@ -48,12 +48,12 @@ check_syncthing() {
 
             if [ -n "$api_key" ]; then
                 local folders_json
-                folders_json=$(curl -s -H "X-API-Key: $api_key" http://localhost:8384/rest/config/folders 2>/dev/null)
-
-                if [ $? -eq 0 ] && [ -n "$folders_json" ]; then
-                    local folder_count
-                    folder_count=$(echo "$folders_json" | grep -o '"id"' | wc -l)
-                    echo "  📁 Shared folders: $folder_count"
+                if folders_json=$(curl -s -H "X-API-Key: $api_key" http://localhost:8384/rest/config/folders 2>/dev/null); then
+                    if [ -n "$folders_json" ]; then
+                        local folder_count
+                        folder_count=$(echo "$folders_json" | grep -o '"id"' | wc -l)
+                        echo "  📁 Shared folders: $folder_count"
+                    fi
                 fi
             fi
         fi

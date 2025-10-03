@@ -16,4 +16,6 @@ detect_os() {
         echo "Warning: Could not detect OS" >&2
         OS="unknown"
     fi
+
+    export OS
 }

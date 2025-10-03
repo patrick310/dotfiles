@@ -81,7 +81,8 @@ save_gateway_device_id() {
         return 1
     fi
 
-    local hostname=$(hostname)
+    local hostname
+    hostname=$(hostname)
     local config_file="$HOME/private-dots/config/sync-devices.yaml"
 
     # Create config directory if needed
@@ -142,7 +143,7 @@ setup_rclone() {
     echo "      7. Choose 'n' for team drive"
     echo "      8. Confirm with 'y'"
     echo ""
-    read -p "    Press Enter to start rclone config..."
+    read -r -p "    Press Enter to start rclone config..."
 
     rclone config
 
@@ -226,7 +227,9 @@ show_gateway_folders() {
     echo "    📁 Gateway server will sync these folders:"
     echo ""
 
-    local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    local script_dir
+    script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # shellcheck source=scripts/setup-folders.sh
     source "$script_dir/setup-folders.sh" "$PROFILE" &> /dev/null
 
     local syncthing_folders
