@@ -9,3 +9,56 @@ alias fgk='flux get kustomizations'
 alias fgh='flux get helmreleases'
 alias fgs='flux get sources'
 
+# Navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias -- -='cd -'  # Go back
+
+# Better ls
+alias ll='ls -alFh'
+alias la='ls -A'
+alias l='ls -CF'
+alias lt='ls -laht'     # sort by time
+alias ..='cd ..'       
+alias ...='cd ../..'   
+alias mkdir='mkdir -pv'  
+
+# Grep with color
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+
+# Quick edits
+alias bashrc='${EDITOR} ~/.bashrc && source ~/.bashrc'
+alias dots='cd ~/dotfiles'
+
+# System
+alias df='df -h'
+alias du='du -h'
+alias free='free -h'
+alias ps='ps auxf'
+
+# Git shortcuts
+alias g='git'
+alias gs='git status'
+alias gd='git diff'
+alias gl='git log --oneline --graph'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gpu='git pull'
+
+# Safety
+alias mkdir='mkdir -pv'  # Create parents, verbose
+alias wget='wget -c'  # Resume by default
+alias rm='rm -i'        
+alias cp='cp -i'       
+alias mv='mv -i'    
+
+
+# Modern replacements (if installed)
+command -v bat &>/dev/null && alias cat='bat'
+command -v eza &>/dev/null && alias ls='eza --group-directories-first'
+command -v rg &>/dev/null && alias grep='rg'

@@ -75,20 +75,8 @@ if [ -x /usr/bin/dircolors ]; then
     alias egrep='egrep --color=auto'
 fi
 
-# ============ BETTER ALIASES ============
-alias ll='ls -alFh'
-alias la='ls -A'
-alias l='ls -CF'
-alias lt='ls -laht'     
-alias ..='cd ..'       
-alias ...='cd ../..'   
-alias mkdir='mkdir -pv'  
-
 # ============ SAFETY ============
 set -o noclobber       
-alias rm='rm -i'        
-alias cp='cp -i'       
-alias mv='mv -i'    
 
 # ============ SOURCE CONFIGS ============
 # Source your custom configs from dotfiles
