@@ -60,14 +60,4 @@ else
     echo "  All global npm packages already installed"
 fi
 
-# Install SOPS from official .deb package
-if ! command -v sops &> /dev/null; then
-    echo "Installing SOPS..."
-    SOPS_VERSION="3.8.1"
-    wget "https://github.com/getsops/sops/releases/download/v${SOPS_VERSION}/sops_${SOPS_VERSION}_amd64.deb" -O /tmp/sops.deb
-    sudo dpkg -i /tmp/sops.deb
-    rm /tmp/sops.deb
-    echo "✅ SOPS installed"
-fi
-
 echo "✅ Ubuntu/Debian package installation complete!"
