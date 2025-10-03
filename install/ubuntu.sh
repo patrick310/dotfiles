@@ -37,8 +37,22 @@ fi
 # Update package list
 sudo apt update
 
+# Ensure nodejs is installed first (required for npm)
+if [[ " ${MAPPED_PACKAGES[*]} " =~ " nodejs " ]] || [[ " ${MAPPED_PACKAGES[*]} " =~ " npm " ]]; then
+    echo "Installing nodejs first (required for npm)..."
+    sudo apt install -y nodejs || echo "nodejs installation failed"
+fi
+
 echo "Installing packages (missing packages will be noted)..."
 sudo apt install -y "${MAPPED_PACKAGES[@]}" || echo "Some packages may have failed to install"
+
+# Install starship via official installer
+if ! command -v starship &> /dev/null; then
+    echo "Installing starship via official installer..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+else
+    echo "starship already installed"
+fi
 
 # Install Bitwarden CLI via snap if available
 if command -v snap &> /dev/null; then

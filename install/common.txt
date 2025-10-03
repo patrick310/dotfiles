@@ -16,10 +16,8 @@ tmux
 fzf
 ripgrep
 fd-find
-starship
 eza
 bat
-lazygit
 
 # Shell enhancements
 bash-completion
