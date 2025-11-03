@@ -1,0 +1,59 @@
+# Common packages for both desktop and server
+# Copy/paste the relevant install command for your OS
+
+# Essential development tools
+git
+stow
+curl
+wget
+make
+gcc
+g++
+
+# Editor and terminal
+neovim
+tmux
+fzf
+ripgrep
+fd-find
+eza
+bat
+
+# Shell enhancements
+bash-completion
+tree
+shellcheck
+
+# Development languages and tools
+python3
+python3-pip
+nodejs
+npm
+direnv
+git-delta
+just
+rustup
+
+# Monitoring
+btop
+htop
+ncdu
+
+# System utilities
+unzip
+zip
+rsync
+
+# Network utilities
+net-tools
+dnsutils
+
+# Security and config tools
+gnupg
+age
+jq
+yq
+
+# Note: Install these separately (not in package managers):
+# - sops: https://github.com/getsops/sops
+# - bitwarden-cli: snap install bw

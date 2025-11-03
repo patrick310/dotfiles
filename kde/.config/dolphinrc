@@ -1,20 +1,16 @@
-# Dolphin File Manager Settings
-# This file will be stowed to ~/.config/dolphinrc
+[CompactMode]
+PreviewSize=16
+
+[DetailsMode]
+PreviewSize=112
 
 [General]
-Version=200
-ViewPropsTimestamp=2024,10,2,12,0,0
-ShowFullPath=true
-ShowSpaceInfo=false
-ShowZoomSlider=true
-HomeUrl=file:///home/%u
+Version=202
+ViewPropsTimestamp=2025,10,11,0,11,36.413
+
+[KFileDialog Settings]
+Places Icons Auto-resize=false
+Places Icons Static Size=22
 
 [MainWindow]
 MenuBar=Disabled
-ToolBarsMovable=Disabled
-
-[PreviewSettings]
-Plugins=appimagethumbnail,audiothumbnail,blenderthumbnail,comicbookthumbnail,djvuthumbnail,ebookthumbnail,exrthumbnail,directorythumbnail,fontthumbnail,imagethumbnail,jpegthumbnail,kraorathumbnail,windowsexethumbnail,windowsimagethumbnail,mobithumbnail,opendocumentthumbnail,gsthumbnail,rawthumbnail,svgthumbnail,textthumbnail,ffmpegthumbs
-
-[VersionControl]
-enabledPlugins=Git

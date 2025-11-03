@@ -1,0 +1,10 @@
+# Additional packages for desktop machines
+# These are in addition to packages/common.txt
+
+syncthing
+rclone
+
+# KDE-specific (if using KDE Plasma)
+# dolphin
+# konsole
+# kdeconnect

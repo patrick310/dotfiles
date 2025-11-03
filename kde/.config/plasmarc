@@ -1,11 +1,2 @@
-# Plasma Desktop Settings
-# This file will be stowed to ~/.config/plasmarc
-
-[Theme]
-name=default
-
 [Wallpapers]
 usersWallpapers=
-
-[PlasmaToolTips]
-Delay=-1

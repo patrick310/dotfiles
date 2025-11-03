@@ -1,17 +1,8 @@
-# Konsole Terminal Emulator Settings
-# This file will be stowed to ~/.config/konsolerc
-
-[Desktop Entry]
-DefaultProfile=Main.profile
-
 [General]
 ConfigVersion=1
 
-[MainWindow]
-MenuBar=Disabled
-ToolBarsMovable=Disabled
-State=AAAA/wAAAAD9AAAAAAAAAfQAAALMAAAABAAAAAQAAAAIAAAACPwAAAAA
+[Notification Messages]
+CloseAllTabs=true
 
-[TabBar]
-TabBarPosition=Top
-TabBarVisibility=ShowTabBarWhenNeeded
+[UiSettings]
+ColorScheme=

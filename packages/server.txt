@@ -1,0 +1,9 @@
+# Additional packages for server machines
+# These are in addition to packages/common.txt
+
+# Optional: container tools
+# docker
+# docker-compose
+
+# Optional: VPN/mesh networking
+# wireguard-tools

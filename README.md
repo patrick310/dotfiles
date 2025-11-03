@@ -1,74 +1,91 @@
 # Dotfiles
 
-Personal configuration files managed with GNU Stow, plus a bootstrapper for new machines.
+Personal configuration files managed with GNU Stow.
 
 ## Quick Start
 
 ```bash
-# Clone and bootstrap
+# Clone the repo
 git clone https://github.com/USERNAME/dotfiles.git ~/dotfiles
 cd ~/dotfiles
-just bootstrap          # or ./bootstrap.sh
+
+# Run bootstrap
+./bootstrap.sh
 ```
 
-Pass a profile to tailor packages and folders:
+The bootstrap script will:
+1. Install shell and nvim configs via GNU Stow
+2. Configure `.bashrc` to source custom bash config
+3. Optionally install KDE configs
+4. Show you the packages to install for your OS
 
+## Repository Structure
+
+```
+dotfiles/
+├── shell/          # Bash configuration → ~/.config/bash/
+├── nvim/           # Neovim (LazyVim) → ~/.config/nvim/
+├── kde/            # KDE Plasma configs → ~/.config/
+├── packages/       # Package lists (common, desktop, server)
+├── templates/      # Service setup guides (syncthing, caddy, etc.)
+├── scripts/        # Helper scripts (setup-kde.sh, install-blesh.sh)
+├── lib/            # Reusable script libraries (backup.sh)
+└── bootstrap.sh    # Simple installer
+```
+
+## Installing Packages
+
+After running `bootstrap.sh`, install packages with your package manager.
+
+**openSUSE:**
 ```bash
-just bootstrap desktop   # default
-just bootstrap server
-just bootstrap gateway
+sudo zypper install git stow curl wget neovim tmux fzf ripgrep ...
+# Copy full list from packages/common.txt + packages/desktop.txt
 ```
 
-## What Bootstrapping Does
+**Ubuntu:**
+```bash
+sudo apt install git stow curl wget neovim tmux fzf ripgrep ...
+# Copy full list from packages/common.txt + packages/server.txt
+```
 
-1. Ensures GNU Stow & git are present.
-2. Creates profile-specific folders (via `scripts/setup-folders.sh`).
-3. Symlinks every directory marked with a `.stow` file.
-4. Configures `~/.bashrc` to source the managed config.
-5. Installs distro + profile package sets and optional tooling (Rust, Node helpers, etc.).
-6. Runs setup extras (KDE tweaks, Rust toolchain, secrets hook).
+**After package installation:**
+```bash
+# Install Rust toolchain
+rustup install stable && rustup default stable
 
-Use `./bootstrap.sh --dry-run` for a safe preview.
+# Optional: Install ble.sh (bash enhancement)
+./scripts/install-blesh.sh
+```
 
-## Repository Layout
+## Profiles
 
-- `shell/` – Bash configuration (`~/.config/bash`, `ble.sh`, fzf tweaks).
-- `nvim/` – LazyVim-based Neovim setup.
-- `kde/` – KDE Plasma preferences, bookmarks, and Konsole profiles.
-- `scripts/` – Helper scripts (Syncthing, KDE, rustup, secrets).
-- `install/` – Shared package lists plus distro installers and per-profile extras.
-- `lib/` – Bootstrap helpers (`prereqs`, `stow`, `packages`).
-- `Justfile` – Task runner for bootstrap, installs, and checks.
+Choose packages based on your use case:
 
-Sensitive material (SSH keys, tokens, etc.) lives in the separate private repo:
+- **Desktop** (`packages/desktop.txt`) - Full workstation with syncthing, rclone, KDE apps
+- **Server** (`packages/server.txt`) - Headless development server
+
+All profiles use `packages/common.txt` as a base.
+
+## Service Setup
+
+For additional services, see the `templates/` directory. Each has a README with manual setup instructions:
+
+- **Syncthing** - File synchronization between devices
+- **Rclone Gateway** - Sync gateway with cloud backup (Syncthing + Rclone + Google Drive)
+- **Caddy** - HTTPS reverse proxy with automatic Let's Encrypt certificates
+- **Headscale** - Self-hosted Tailscale control server for mesh VPN
+
+These are **documentation only** - no automation. Follow the READMEs to set up manually.
+
+## Private Dotfiles
+
+Sensitive configs (SSH, git identity, secrets) live in a separate private repo:
 
 ```bash
 git clone git@github.com:USERNAME/private-dots.git ~/private-dots
-cd ~/private-dots && ./bootstrap.sh
-```
-
-## Profiles & Packages
-
-Profile lists live under `install/profiles/` and stack on top of `install/common.txt`.
-The provided profiles are:
-
-- `minimal` – lean environment (no extras).
-- `desktop` – full workstation tooling, sync (default).
-- `server` – placeholders for headless tooling.
-- `gateway` – sync gateway helpers (Syncthing + rclone).
-
-Adjust the lists or add new profile files as needed.
-
-## Task Runner
-
-Useful commands from the `Justfile`:
-
-```bash
-just                    # same as `just bootstrap`
-just bootstrap server   # run bootstrap for a server
-just install-packages ubuntu desktop
-just check              # shellcheck + stow simulation + package audit
-just check server       # run checks for a profile
+cd ~/private-dots
+./bootstrap.sh
 ```
 
 ## Updating
@@ -76,14 +93,38 @@ just check server       # run checks for a profile
 ```bash
 cd ~/dotfiles
 git pull
-just bootstrap
+./bootstrap.sh  # Re-stow configs
 ```
 
 ## Manual Stow
 
-If you prefer to manage things manually:
+If you prefer to stow manually:
 
 ```bash
-sudo apt install stow  # or zypper/dnf
-stow shell nvim kde
+# Install stow
+sudo zypper install stow  # or: apt install stow
+
+# Stow individual packages
+cd ~/dotfiles
+stow shell          # Install bash configs
+stow nvim           # Install neovim configs
+stow kde            # Install KDE configs
 ```
+
+## Helper Libraries
+
+The `lib/` directory contains reusable script functions:
+
+- **backup.sh** - File backup utilities (`backup_file`, `backup_directory`, `restore_backup`, etc.)
+
+Source these in your own scripts:
+```bash
+source ~/dotfiles/lib/backup.sh
+backup_file ~/.config/important.conf
+```
+
+## Notes
+
+- Configs are symlinked, not copied - edit files in `~/dotfiles/` to keep them in git
+- Run `./bootstrap.sh` again if you add new stow packages
+- See `templates/` READMEs for service-specific setup guides

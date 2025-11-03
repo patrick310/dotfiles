@@ -1,3 +1,0 @@
-# Additional packages for gateway profile
-syncthing
-rclone

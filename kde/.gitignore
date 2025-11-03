@@ -1,0 +1,9 @@
+# Machine-specific configs
+kwinoutputconfig.json
+kded5rc
+kded6rc
+plasma-localerc
+
+# Session files
+*.lock
+*cache*

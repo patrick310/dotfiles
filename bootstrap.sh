@@ -1,165 +1,115 @@
-#!/usr/bin/env bash
-# ~/dotfiles/bootstrap.sh - Idempotent dotfiles setup with conflict handling
+#!/bin/bash
+# Simple dotfiles installer using GNU Stow
 
-set -eo pipefail
+set -e
 
 DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-LIB_DIR="$DOTFILES_DIR/lib"
-STOW_STATE_FILE="$DOTFILES_DIR/.stow_state"
-BACKUP_DIR="$HOME/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
-STOWED_PACKAGES=()
+cd "$DOTFILES_DIR"
 
-DEFAULT_PROFILE="${BOOTSTRAP_PROFILE:-desktop}"
-PROFILE="$DEFAULT_PROFILE"
-FORCE_MODE=false
-DRY_RUN=false
+echo "==> Installing dotfiles"
 
-# shellcheck source=lib/os.sh
-source "$LIB_DIR/os.sh"
-# shellcheck source=lib/prereqs.sh
-source "$LIB_DIR/prereqs.sh"
-# shellcheck source=lib/stow.sh
-source "$LIB_DIR/stow.sh"
-# shellcheck source=lib/packages.sh
-source "$LIB_DIR/packages.sh"
+# Check prerequisites
+if ! command -v stow >/dev/null 2>&1; then
+    echo "❌ GNU Stow is required but not installed."
+    echo ""
+    echo "Install it with:"
+    echo "  openSUSE: sudo zypper in stow"
+    echo "  Ubuntu:   sudo apt install stow"
+    echo ""
+    exit 1
+fi
 
-usage() {
-    cat <<'HELP'
-Usage: ./bootstrap.sh [OPTIONS]
+# Stow core configs
+echo "📦 Installing shell and nvim configs..."
+stow -d "$DOTFILES_DIR" -t "$HOME" shell
+stow -d "$DOTFILES_DIR" -t "$HOME" nvim
 
-Options:
-  --profile, -p NAME  Use profile NAME (default: desktop)
-  --force,   -f       Auto-backup conflicting files without prompting
-  --dry-run,  -n      Show what would happen without making changes
-  --help,    -h       Show this help message
-
-Examples:
-  ./bootstrap.sh                     # Interactive mode
-  ./bootstrap.sh --profile server    # Server profile
-  ./bootstrap.sh --force --dry-run   # Preview with forced backups
-HELP
-}
-
-configure_bashrc() {
-    if grep -q ".config/bash/bashrc" ~/.bashrc 2>/dev/null; then
-        echo "==> .bashrc already configured"
-        return
-    fi
-
-    if [ "$DRY_RUN" = true ]; then
-        echo "==> [DRY-RUN] Would configure .bashrc to source custom config"
-        return
-    fi
-
-    echo "==> Configuring .bashrc to source custom config..."
+# Configure .bashrc if needed
+if ! grep -q ".config/bash/bashrc" ~/.bashrc 2>/dev/null; then
+    echo "📝 Configuring .bashrc..."
     cat >> ~/.bashrc <<'RC'
 
 # Source custom bash configuration
 [ -f ~/.config/bash/bashrc ] && source ~/.config/bash/bashrc
 RC
-}
+fi
 
-run_setup_scripts() {
-    echo "==> Running setup scripts..."
-
-    if [ "$DRY_RUN" = true ]; then
-        echo "    [DRY-RUN] Would run setup scripts"
-        return
-    fi
-
-    if [ "$XDG_CURRENT_DESKTOP" = "KDE" ] && [ -f "$DOTFILES_DIR/scripts/setup-kde.sh" ]; then
-        bash "$DOTFILES_DIR/scripts/setup-kde.sh"
-    fi
-
-    if [ -f "$DOTFILES_DIR/scripts/setup-rust.sh" ]; then
-        bash "$DOTFILES_DIR/scripts/setup-rust.sh"
-    fi
-
-    if [ -d "$HOME/private-dots" ] && [ -f "$DOTFILES_DIR/scripts/setup-secrets.sh" ]; then
-        bash "$DOTFILES_DIR/scripts/setup-secrets.sh"
-    fi
-}
-
-print_summary() {
+# Ask about KDE
+if [ -d "$DOTFILES_DIR/kde" ]; then
+    read -p "📦 Install KDE configs? (y/N) " -n 1 -r
     echo
-    if [ "$DRY_RUN" = true ]; then
-        echo "✅ Dry-run complete! Run without --dry-run to apply changes."
-        return
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        stow -d "$DOTFILES_DIR" -t "$HOME" kde
+        echo "✓ KDE configs installed"
+
+        # Offer to run KDE setup script
+        if [ -f "$DOTFILES_DIR/scripts/setup-kde.sh" ]; then
+            read -p "🔧 Run KDE setup script for tweaks? (y/N) " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                bash "$DOTFILES_DIR/scripts/setup-kde.sh"
+            fi
+        fi
     fi
+fi
 
-    echo "✅ Bootstrap complete!"
+echo ""
+echo "✅ Dotfiles installed!"
+echo ""
+echo "📦 Next: Install packages"
+echo ""
 
-    if [ -d "$BACKUP_DIR" ]; then
-        echo "📦 Backed up files: $BACKUP_DIR/"
-    fi
+# Detect OS and show relevant package install command
+if [ -f /etc/os-release ]; then
+    . /etc/os-release
+    case "$ID" in
+        opensuse*|suse)
+            echo "# openSUSE / SUSE:"
+            echo "sudo zypper install \\"
+            ;;
+        ubuntu|debian)
+            echo "# Ubuntu / Debian:"
+            echo "sudo apt install \\"
+            ;;
+        fedora)
+            echo "# Fedora:"
+            echo "sudo dnf install \\"
+            ;;
+        *)
+            echo "# Install these packages with your package manager:"
+            echo ""
+            ;;
+    esac
+fi
 
-    echo
-    echo "📝 Next steps:"
-    echo "   1. Reload shell: source ~/.bashrc"
-    if [ -d "$HOME/private-dots" ]; then
-        echo "   2. Setup home folders & sync: ~/private-dots/setup-home.sh"
-    fi
-    echo
-    echo "Profile applied: $PROFILE"
-}
+# Show common packages
+cat "$DOTFILES_DIR/packages/common.txt" | grep -v '^#' | grep -v '^$' | tr '\n' ' '
+echo ""
 
-parse_args() {
-    while [[ $# -gt 0 ]]; do
-        case $1 in
-            --force|-f)
-                FORCE_MODE=true
-                shift
-                ;;
-            --dry-run|-n)
-                DRY_RUN=true
-                shift
-                ;;
-            --profile|-p)
-                if [[ -z ${2:-} ]]; then
-                    echo "Error: --profile requires a value" >&2
-                    exit 1
-                fi
-                PROFILE="$2"
-                shift 2
-                ;;
-            --help|-h)
-                usage
-                exit 0
-                ;;
-            *)
-                echo "Unknown option: $1" >&2
-                usage >&2
-                exit 1
-                ;;
-        esac
-    done
-}
+# Ask about profile
+echo ""
+read -p "📋 Profile? [d]esktop, [s]erver, or [n]one (default=none): " -n 1 -r profile
+echo ""
 
-main() {
-    parse_args "$@"
-    detect_os
+case "$profile" in
+    d|D)
+        cat "$DOTFILES_DIR/packages/desktop.txt" | grep -v '^#' | grep -v '^$' | tr '\n' ' '
+        echo ""
+        ;;
+    s|S)
+        cat "$DOTFILES_DIR/packages/server.txt" | grep -v '^#' | grep -v '^$' | tr '\n' ' '
+        echo ""
+        ;;
+esac
 
-    if [ "$DRY_RUN" = true ]; then
-        echo "🔍 DRY-RUN MODE - No changes will be made"
-        echo
-    fi
-
-    echo "🔧 Bootstrapping dotfiles (profile: $PROFILE)..."
-    echo
-
-    ensure_prerequisites
-    ensure_user_directories
-
-    stow_setup_trap
-    # shellcheck disable=SC2119
-    stow_dotfiles
-
-    configure_bashrc
-    install_profile_packages
-    run_setup_scripts
-
-    trap - ERR
-    print_summary
-}
-
-main "$@"
+echo ""
+echo "📝 After installing packages:"
+echo "  - rustup: Run 'rustup install stable && rustup default stable'"
+echo "  - ble.sh: Run ./scripts/install-blesh.sh (optional bash enhancement)"
+echo ""
+echo "📁 See templates/ for service configs:"
+echo "  - templates/syncthing/  - File sync setup"
+echo "  - templates/caddy/      - HTTPS reverse proxy"
+echo "  - templates/headscale/  - Self-hosted VPN"
+echo "  - templates/rclone/     - Cloud backup gateway"
+echo ""
