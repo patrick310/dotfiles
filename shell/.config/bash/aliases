@@ -1,3 +1,7 @@
+# Common language shortcuts
+alias p='pnpm'
+alias c='cargo'
+
 # Kubectl aliases
 alias k='kubectl'
 alias kns='kubectl config set-context --current --namespace'
