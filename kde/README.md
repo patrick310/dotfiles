@@ -1,33 +1,30 @@
 # KDE Plasma Configuration
 
-openSUSE Tumbleweed KDE Plasma settings.
+KDE Plasma settings for Fedora and Ubuntu.
 
 ## Included Configs
 
-This captures the essential KDE configuration files:
+Stable preference files that are safe to symlink:
 
 ### Desktop & Window Manager
 - **kdeglobals** - Global KDE settings (theme, colors, fonts)
 - **kwinrc** - KWin window manager settings
-- **plasmarc** - Plasma desktop settings
-- **plasmashellrc** - Plasma shell configuration
-- **plasma-org.kde.plasma.desktop-appletsrc** - Desktop widgets and applets
+- **plasmarc** - Plasma desktop appearance
 
 ### Applications
 - **konsolerc** - Konsole terminal settings
 - **dolphinrc** - Dolphin file manager settings
 
-### User Data
-- **user-places.xbel** - Dolphin bookmarks and places
-
 ## What's NOT Included
 
-Machine-specific configs are excluded:
-- `kwinoutputconfig.json` - Display configuration (screen layout, resolution)
+Machine-specific or volatile state files that KDE constantly rewrites:
+- `plasma-org.kde.plasma.desktop-appletsrc` - Desktop widget/panel layout (session state)
+- `plasmashellrc` - Panel geometry and state (session state)
+- `user-places.xbel` - Dolphin bookmarks (changes as you use the system)
+- `kwinoutputconfig.json` - Display configuration (hardware-specific)
 - `kded5rc`, `kded6rc` - Daemon configs
 - `plasma-localerc` - Locale settings
 - Session/cache files
-- kdenlive configs (separate application)
 
 ## Installation
 
@@ -53,10 +50,3 @@ git add kde/
 git commit -m "Update KDE settings"
 git push
 ```
-
-## Notes
-
-- These configs are specific to openSUSE Tumbleweed with KDE Plasma 6
-- Display settings are intentionally excluded (they're hardware-specific)
-- Konsole profiles should be configured per-machine
-- Changes to KDE settings are immediately reflected in git

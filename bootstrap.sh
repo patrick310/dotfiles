@@ -13,8 +13,8 @@ if ! command -v stow >/dev/null 2>&1; then
     echo "❌ GNU Stow is required but not installed."
     echo ""
     echo "Install it with:"
-    echo "  openSUSE: sudo zypper in stow"
-    echo "  Ubuntu:   sudo apt install stow"
+    echo "  Fedora: sudo dnf install stow"
+    echo "  Ubuntu: sudo apt install stow"
     echo ""
     exit 1
 fi
@@ -39,6 +39,10 @@ if [ -d "$DOTFILES_DIR/kde" ]; then
     read -p "📦 Install KDE configs? (y/N) " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
+        for f in .config/dolphinrc .config/kdeglobals .config/konsolerc .config/kwinrc .config/plasmarc; do
+            target="$HOME/$f"
+            [ -f "$target" ] && [ ! -L "$target" ] && rm "$target"
+        done
         stow -d "$DOTFILES_DIR" -t "$HOME" kde
         echo "✓ KDE configs installed"
 
@@ -63,10 +67,6 @@ echo ""
 if [ -f /etc/os-release ]; then
     . /etc/os-release
     case "$ID" in
-        opensuse*|suse)
-            echo "# openSUSE / SUSE:"
-            echo "sudo zypper install \\"
-            ;;
         ubuntu|debian)
             echo "# Ubuntu / Debian:"
             echo "sudo apt install \\"
