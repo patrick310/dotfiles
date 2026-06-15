@@ -10,9 +10,15 @@ ShowSpaceInfo=false
 Version=202
 ViewPropsTimestamp=2025,10,11,0,11,36.413
 
+[IconsMode]
+PreviewSize=160
+
 [KFileDialog Settings]
 Places Icons Auto-resize=false
 Places Icons Static Size=22
 
 [MainWindow]
 MenuBar=Disabled
+
+[UiSettings]
+ColorScheme=NordDarkColor

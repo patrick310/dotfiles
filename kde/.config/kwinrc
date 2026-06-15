@@ -1,18 +1,43 @@
 [Desktops]
 Id_1=ff39f341-55d7-4c2e-9efb-11f984f4b005
-Number=1
+Id_2=35165a30-efcb-4de1-8679-cdf64d7c29fc
+Number=2
 Rows=1
 
+[Effect-blur]
+BlurStrength=4
+NoiseStrength=3
+Saturation=129
+
+[Effect-cube]
+CubeFaceDisplacement=41
+
 [Plugins]
+blurEnabled=true
+cubeEnabled=true
 krohnkiteEnabled=false
 sheetEnabled=true
+slidebackEnabled=true
+synchronizeskipswitcherEnabled=true
 translucencyEnabled=true
 wobblywindowsEnabled=true
+
+[Tiling][021b1440-1702-489e-83f5-3397df9f90a5][591ada4d-ff07-4e59-90b1-54e7ab15b196]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][2c95023d-574c-5bae-8921-442fbf2c7817]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
+[Tiling][35165a30-efcb-4de1-8679-cdf64d7c29fc][591ada4d-ff07-4e59-90b1-54e7ab15b196]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Tiling][4c3b32cc-e728-574a-8a08-1fca76a66418]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][531654f1-dfb8-4891-a805-c9098ac26fe7][591ada4d-ff07-4e59-90b1-54e7ab15b196]
+padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][635b6d07-ff69-5f63-bccd-13cc5d45e9ac]
@@ -30,10 +55,18 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 [Tiling][98ad6a54-c4c9-5c25-bf14-973e703321af]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
+[Tiling][a09c49d4-5413-49cd-b526-2a6df4bfb1e9][591ada4d-ff07-4e59-90b1-54e7ab15b196]
+padding=4
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
 [Tiling][a90c524c-f4ce-50a4-adc2-1f5659ec684b]
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][b06156e3-dfba-5083-b741-274edd7c0fda]
+tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
+
+[Tiling][e7461984-f868-440c-b313-05e1111b5002][591ada4d-ff07-4e59-90b1-54e7ab15b196]
+padding=4
 tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"width":0.25}]}
 
 [Tiling][ff39f341-55d7-4c2e-9efb-11f984f4b005][3b30adf5-dd24-47a7-a235-ad49d85cab45]
@@ -52,6 +85,11 @@ tiles={"layoutDirection":"horizontal","tiles":[{"width":0.25},{"width":0.5},{"wi
 [Windows]
 AutoRaise=false
 FocusPolicy=FocusFollowsMouse
+Placement=Smart
 
 [Xwayland]
 Scale=1.35
+
+[org.kde.kdecoration2]
+library=org.kde.kwin.aurorae.v2
+theme=__aurorae__svg__Nordic
