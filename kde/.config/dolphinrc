@@ -2,7 +2,7 @@
 PreviewSize=16
 
 [DetailsMode]
-PreviewSize=112
+PreviewSize=128
 
 [General]
 ShowFullPath=true
@@ -11,14 +11,17 @@ Version=202
 ViewPropsTimestamp=2025,10,11,0,11,36.413
 
 [IconsMode]
-PreviewSize=160
+PreviewSize=128
 
 [KFileDialog Settings]
-Places Icons Auto-resize=false
+Places Icons Auto-resize=true
 Places Icons Static Size=22
 
 [MainWindow]
 MenuBar=Disabled
 
+[PlacesPanel]
+IconSize=-1
+
 [UiSettings]
-ColorScheme=NordDarkColor
+ColorScheme=UtterlyNord

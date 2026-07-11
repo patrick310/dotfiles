@@ -20,3 +20,7 @@ export DOWNLOADS_DIR="$HOME/Downloads"
 # Editors
 export EDITOR=nvim
 export VISUAL=nvim
+
+# Proto/Moon
+export PROTO_HOME="$HOME/.proto"
+export PATH="$PROTO_HOME/shims:$PROTO_HOME/bin:$PATH"
